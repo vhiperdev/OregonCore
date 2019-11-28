@@ -218,14 +218,14 @@ case 4010: // Heal me please
 break;
 
 case 5000://Remove Res Sickness
-    if(!player->HasAura(SPELL_ID_PASSIVE_RESURRECTION_SICKNESS,0)) {
+    if(!player->HasAura(SPELL_PASSIVE_RESURRECTION_SICKNESS,0)) {
         _Creature->MonsterWhisper("You are not suffering from resurrection sickness.", player->GetGUID());
         GossipHello_NPC_Buff(player, _Creature);
         return;
     }
 
     _Creature->CastSpell(player,38588,false); // Healing effect
-    player->RemoveAurasDueToSpell(SPELL_ID_PASSIVE_RESURRECTION_SICKNESS);
+    player->RemoveAurasDueToSpell(SPELL_PASSIVE_RESURRECTION_SICKNESS);
     player->CLOSE_GOSSIP_MENU();
     break;
 

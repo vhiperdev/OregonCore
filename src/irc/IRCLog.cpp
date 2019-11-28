@@ -24,6 +24,7 @@
 #include "Config/Config.h"
 #include "IRCClient.h"
 #include <stdarg.h>
+#include "GameObjectModel.h"
 
 IRCLog::IRCLog()
 {

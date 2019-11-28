@@ -80,7 +80,7 @@ bool GossipHello_npc_tokens(Player* pPlayer, Creature* pCreature)
 void SendDefaultMenu_npc_tokens(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     // Not allowed if in combat.
-    if (pPlayer->isInCombat())
+    if (pPlayer->IsInCombat())
     {
       pPlayer->CLOSE_GOSSIP_MENU();
       pCreature->MonsterSay("You are in combat!", LANG_UNIVERSAL, NULL);

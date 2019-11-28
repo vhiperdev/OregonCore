@@ -7863,7 +7863,7 @@ bool ChatHandler::HandleChatSpySetCommand(const char *args)
     {
         cname = name;
         normalizePlayerName(cname);
-        target = objmgr.GetPlayer(cname.c_str());
+        target = sObjectMgr.GetPlayer(cname.c_str());
     }
     else
         target = getSelectedPlayer();
@@ -7889,7 +7889,7 @@ bool ChatHandler::HandleChatSpyResetCommand(const char* /*args*/)
         Player* plr = itr->second->GetSession()->GetPlayer();
         if (plr && plr->m_chatSpyGuid)
         {
-            if(Player* spy = objmgr.GetPlayer(plr->m_chatSpyGuid))
+            if(Player* spy = sObjectMgr.GetPlayer(plr->m_chatSpyGuid))
                 if(spy->IsInWorld())
                     ChatHandler(spy).PSendSysMessage(LANG_CHATSPY_CANCELLEDMASSIVE,
                         plr->GetName(), plr->GetGUIDLow());
@@ -7913,7 +7913,7 @@ bool ChatHandler::HandleChatSpyCancelCommand(const char* args)
     {
         cname = name;
         normalizePlayerName(cname);
-        target = objmgr.GetPlayer(cname.c_str());
+        target = sObjectMgr.GetPlayer(cname.c_str());
     }
     else
         target = getSelectedPlayer();
@@ -7936,7 +7936,7 @@ bool ChatHandler::HandleChatSpyCancelCommand(const char* args)
         SendSysMessage(LANG_CHATSPY_YOURCANCELLED);
     else
     {
-        Player* spy = objmgr.GetPlayer(target->m_chatSpyGuid);
+        Player* spy = sObjectMgr.GetPlayer(target->m_chatSpyGuid);
         PSendSysMessage(LANG_CHATSPY_SMBCANCELLED, (spy ? spy->GetName() : "ERROR"), (spy ? spy->GetGUIDLow() : 0));
     }
     target->m_chatSpyGuid = 0;
@@ -7955,7 +7955,7 @@ bool ChatHandler::HandleChatSpyStatusCommand(const char* args)
         Player* plr = itr->second->GetSession()->GetPlayer();
         if (plr && plr->m_chatSpyGuid)
         {
-            Player* spy = objmgr.GetPlayer(plr->m_chatSpyGuid);
+            Player* spy = sObjectMgr.GetPlayer(plr->m_chatSpyGuid);
             PSendSysMessage(LANG_CHATSPY_ONESPYSANOTHER,
                 (spy ? spy->GetName() : "ERROR"), (spy ? spy->GetGUIDLow() : 0 ),
                 plr->GetName(), plr->GetGUIDLow()
@@ -8001,7 +8001,7 @@ bool ChatHandler::HandleWarpCommand(const char* args)
     }
 
     // stop flight if need
-    if (_player->isInFlight())
+    if (_player->IsInFlight())
     {
         _player->GetMotionMaster()->MovementExpired();
         _player->CleanupAfterTaxiFlight();

@@ -31,8 +31,8 @@
 #include "GameSystem/GridRefManager.h"
 #include "MapRefManager.h"
 
-#include "DynamicTree.h"
-#include "GameObjectModel.h"
+#include "../collision/DynamicTree.h"
+#include "../collision/GameObjectModel.h"
 
 #include <bitset>
 #include <list>

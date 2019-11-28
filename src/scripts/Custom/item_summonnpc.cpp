@@ -36,7 +36,7 @@ bool ItemUse_item_summonnpc(Player* pPlayer, Item* pItem, const SpellCastTargets
     uint32 despawnSec;
     extern DatabaseType WorldDatabase;
 
-if ((pPlayer->isInCombat()) || (pPlayer->isInFlight()) || (pPlayer->isDead()))
+if ((pPlayer->IsInCombat()) || (pPlayer->IsInFlight()) || (pPlayer->isDead()))
 {
       pPlayer->SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, pItem, NULL);
         return false;

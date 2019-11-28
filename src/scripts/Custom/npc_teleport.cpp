@@ -80,7 +80,7 @@ namespace
         for ( ; i < TabCatDest.size() && i < (NB_ITEM_PAGE * (PageC[player] + 1)); ++i)
         {
             if (TabCatDest[i].IsAllowedToTeleport(player))
-                player->ADD_GOSSIP_ITEM(7, TabCatDest[i].GetName(player->isGameMaster()).c_str(), GOSSIP_SHOW_DEST, i);
+                player->ADD_GOSSIP_ITEM(7, TabCatDest[i].GetName(player->IsGameMaster()).c_str(), GOSSIP_SHOW_DEST, i);
         }
 
         if (i < TabCatDest.size())
@@ -115,21 +115,21 @@ namespace
     {
         Dest dest (TabCatDest[Cat[player]].GetDest(id));
 
-        if (player->getLevel() < dest.m_level && !player->isGameMaster()) 
+        if (player->getLevel() < dest.m_level && !player->IsGameMaster()) 
         {
             std::string msg ("You do not meet the level requirement. This destination requires level " + ConvertStr(dest.m_level) + ".");
             creature->MonsterWhisper(msg.c_str(), player->GetGUID());
             return;
         }
 
-        if (player->GetMoney() < dest.m_cost && !player->isGameMaster())
+        if (player->GetMoney() < dest.m_cost && !player->IsGameMaster())
         {
             std::string msg ("You do not have enough money. The price for teleportation is " + ConvertMoney(dest.m_cost) + ".");
             creature->MonsterWhisper(msg.c_str(), player->GetGUID());
             return;
         }
 
-        if (!player->isGameMaster() && dest.m_cost)
+        if (!player->IsGameMaster() && dest.m_cost)
             player->ModifyMoney(-1 * dest.m_cost);
 
         std::string saydepart = dest.m_sayondeparture;
@@ -143,7 +143,7 @@ bool GossipHello_npc_teleport(Player *player, Creature *creature)
 {
     PageC(player) = PageD(player) = Cat(player) = 0;
 
-    if(player->isInCombat())
+    if(player->IsInCombat())
     {
         player->CLOSE_GOSSIP_MENU();
         creature->MonsterWhisper("You are in combat!", player->GetGUID());
@@ -195,9 +195,9 @@ bool GossipSelect_npc_teleport(Player *player, Creature *creature, uint32 sender
       // Teleportation
       case GOSSIP_TELEPORT:
         player->CLOSE_GOSSIP_MENU();
-        if(player->HasAura(SPELL_ID_PASSIVE_RESURRECTION_SICKNESS,0)) {
+        if(player->HasAura(SPELL_PASSIVE_RESURRECTION_SICKNESS,0)) {
             creature->CastSpell(player,38588,false); // Healing effect
-            player->RemoveAurasDueToSpell(SPELL_ID_PASSIVE_RESURRECTION_SICKNESS);
+            player->RemoveAurasDueToSpell(SPELL_PASSIVE_RESURRECTION_SICKNESS);
         }
 
         ActionTeleport(player, creature, param);

@@ -59,7 +59,7 @@ struct npc_areaguardAI : public Scripted_NoMovementAI
         Player *pPlayer = pWho->GetCharmerOrOwnerPlayerOrPlayerItself();
 
         // Return if player has GM flag on or is in process of teleport
-        if (!pPlayer || pPlayer->isGameMaster() || pPlayer->IsBeingTeleported())
+        if (!pPlayer || pPlayer->IsGameMaster() || pPlayer->IsBeingTeleported())
             return;
 
         switch (guardType)

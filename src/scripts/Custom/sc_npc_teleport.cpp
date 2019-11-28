@@ -5,7 +5,7 @@
 
 #include "ScriptPCH.h"
 #include "sc_npc_teleport.h"
-#include "ProgressBar.h"
+//#include "ProgressBar.h"
 
 #define TELE    nsNpcTel::CatDest
 #define PAGE    nsNpcTel::Page
@@ -90,7 +90,7 @@ std::string TELE::GetName(const bool IsGM /* = false */) const
 
 bool TELE::IsAllowedToTeleport(Player * const player) const
 {
-    if (player->isGameMaster())
+    if (player->IsGameMaster())
     {
         if (m_flag == FLAG_GMLEVEL)
             return player->GetSession()->GetSecurity() >= m_data0;
@@ -114,7 +114,7 @@ bool TELE::IsAllowedToTeleport(Player * const player) const
         return player->GetSession()->GetSecurity() >= m_data0;
 
       case FLAG_ISGM:
-        return player->isGameMaster();
+        return player->IsGameMaster();
 
       case FLAG_ACCOUNT:
         return player->GetSession()->GetAccountId() == m_data0;
@@ -301,7 +301,7 @@ void LoadNpcTele(QueryResult_AutoPtr result)
     if (result)
     {
         outstring_log( "OSCR: Loading NPC Teleport Data...");
-        barGoLink bar(result->GetRowCount());
+        //barGoLink bar(result->GetRowCount());
 
         uint32 catid = 0;
         uint32 nbDest = 0;
@@ -310,7 +310,7 @@ void LoadNpcTele(QueryResult_AutoPtr result)
 
         do
         {
-            bar.step();
+            //bar.step();
             Field *fields = result->Fetch();
 
             if (!IsValidCat && catid == fields[3].GetUInt32() && !FirstTime)

@@ -700,10 +700,10 @@ int IRCCmd::GetLevel(std::string sName)
 
 int IRCCmd::AcctLevel(std::string plnme)
 {
-    uint64 guid = objmgr.GetPlayerGUIDByName(plnme);
+    uint64 guid = sObjectMgr.GetPlayerGUIDByName(plnme);
     uint32 account_id = 0;
     uint32 security = 0;
-    account_id = objmgr.GetPlayerAccountIdByGUID(guid);
+    account_id = sObjectMgr.GetPlayerAccountIdByGUID(guid);
     security = sAccountMgr->GetSecurity(account_id);
     return security;
 }
