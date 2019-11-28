@@ -194,6 +194,7 @@ enum WorldConfigs
     CONFIG_CHANCE_OF_GM_SURVEY,
     CONFIG_INSTANT_LOGOUT,
     CONFIG_DISABLE_BREATHING,
+    CONFIG_DISABLE_FATIGUE,
     CONFIG_ALL_TAXI_PATHS,
     CONFIG_INSTANT_TAXI,
     CONFIG_DECLINED_NAMES_USED,
@@ -220,6 +221,7 @@ enum WorldConfigs
     CONFIG_BG_START_MUSIC,
     CONFIG_START_ALL_SPELLS,
     CONFIG_HONOR_AFTER_DUEL,
+    CONFIG_GOLD_AFTER_DUEL,
     CONFIG_START_ALL_EXPLORED,
     CONFIG_START_ALL_REP,
     CONFIG_ALWAYS_MAXSKILL,
@@ -335,7 +337,28 @@ enum Rates
     RATE_DURABILITY_LOSS_BLOCK,
     RATE_RAF_BONUS_XP,
     RATE_RAF_GRANTABLE_LEVELS_PER_LEVEL,
+    RATE_PVP_RANK_EXTRA_HONOR,
     MAX_RATES
+};
+
+enum HonorKillPvPRank
+{
+    HKRANK00,
+    HKRANK01,
+    HKRANK02,
+    HKRANK03,
+    HKRANK04,
+    HKRANK05,
+    HKRANK06,
+    HKRANK07,
+    HKRANK08,
+    HKRANK09,
+    HKRANK10,
+    HKRANK11,
+    HKRANK12,
+    HKRANK13,
+    HKRANK14,
+    HKRANKMAX
 };
 
 // Type of server
@@ -474,7 +497,7 @@ class World
         void AddSession(WorldSession* s);
         void SendAutoBroadcast();
         void InvalidatePlayerDataToAllClient(uint64 guid) const;
-        bool RemoveSession(uint32 id); 
+        bool RemoveSession(uint32 id);
         // Get the number of current active sessions
         void UpdateMaxSessionCounters();
         const SessionMap& GetAllSessions() const { return m_sessions; }
@@ -621,6 +644,8 @@ class World
         bool SendZoneMessage(uint32 zone, WorldPacket* packet, WorldSession* self = 0, uint32 team = 0);
         void SendZoneText(uint32 zone, const char* text, WorldSession* self = 0, uint32 team = 0);
         void SendServerMessage(ServerMessageType type, const char* text = "", Player* player = NULL);
+
+        uint32 pvp_ranks[HKRANKMAX];
 
         // Are we in the middle of a shutdown?
         bool IsShuttingDown() const
@@ -868,4 +893,3 @@ extern uint32 realmID;
 
 #define sWorld Oregon::Singleton<World>::Instance()
 #endif
-

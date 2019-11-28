@@ -30,6 +30,7 @@
 #include "DBCStores.h"
 #include "RARunnable.h"
 #include "Utilities/Util.h"
+#include "IRCClient.h"
 #include "OCSoap.h"
 #include "Console.h"
 #include "ObjectAccessor.h"
@@ -212,6 +213,15 @@ int Master::Run(bool runTests)
 
     //uint32 socketSelecttime = sWorld.getConfig(CONFIG_SOCKET_SELECTTIME);
 
+    // Start up OCChat
+    if (sIRC.Active == 1)
+    {
+        ACE_Based::Thread irc(new IRCClient);
+        irc.setPriority ((ACE_Based::Priority)2);
+    }
+    else
+        sLog.outString("OCChat: OCChat Is Disabled.");
+
     // Start up freeze catcher thread
     ACE_Based::Thread* freeze_thread = NULL;
     if (uint32 freeze_delay = sConfig.GetIntDefault("MaxCoreStuckTime", 0))
@@ -278,7 +288,7 @@ int Master::Run(bool runTests)
         freeze_thread->wait();
         delete freeze_thread;
     }
-    
+
     sWorldSocketMgr->Wait();
 
     // Stop soap thread

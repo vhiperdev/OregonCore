@@ -20,6 +20,7 @@
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
 #include "Config/Config.h"
+#include "IRCClient.h"
 #include "Log.h"
 #include "Master.h"
 #include <ace/Version.h>
@@ -211,4 +212,3 @@ extern int main(int argc, char** argv)
     // 1 - shutdown at error
     // 2 - restart command used, this code can be used by restarter for restart OregonCore
 }
-

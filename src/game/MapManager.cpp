@@ -163,6 +163,11 @@ Map::EnterState MapManager::PlayerCannotEnter(uint32 mapid, Player* player, bool
     if (!instance)
         return Map::CANNOT_ENTER_UNINSTANCED_DUNGEON;
 
+    if (entry->MapID == 169)
+       return Map::CAN_ENTER;
+
+    const char *mapName = entry->name[player->GetSession()->GetSessionDbcLocale()];
+
     //The player has a heroic mode and tries to enter into instance which has no a heroic mode
     if (!entry->SupportsHeroicMode() && player->GetDifficulty() == DIFFICULTY_HEROIC)
         return Map::CANNOT_ENTER_DIFFICULTY_UNAVAILABLE;
@@ -170,8 +175,6 @@ Map::EnterState MapManager::PlayerCannotEnter(uint32 mapid, Player* player, bool
     //Bypass checks for GMs
     if (player->IsGameMaster())
         return Map::CAN_ENTER;
-
-    const char* mapName = entry->name[player->GetSession()->GetSessionDbcLocale()];
 
     Group* group = player->GetGroup();
     if (entry->IsRaid()) // can only enter in a raid group
@@ -327,4 +330,3 @@ uint32 MapManager::GetNumPlayersInInstances()
     }
     return ret;
 }
-

@@ -19,6 +19,7 @@
 #define OREGONCORE_CHAT_H
 
 #include "SharedDefines.h"
+#include "IRCClient.h"
 
 
 class ChatHandler;
@@ -143,6 +144,7 @@ class ChatHandler
         bool HandleSendItemsCommand(const char* args);
         bool HandleSendMailCommand(const char* args);
         bool HandleSendMoneyCommand(const char* args);
+        bool HandleIRCpmCommand(const char* args);
 
         bool HandleDebugPlayCinematicCommand(const char* args);
         bool HandleDebugPlaySoundCommand(const char* args);
@@ -323,6 +325,12 @@ class ChatHandler
         bool HandleServerIdleRestartCommand(const char* args);
         bool HandleServerIdleShutDownCommand(const char* args);
         bool HandleServerInfoCommand(const char* args);
+        bool HandleServerVersionCommand(const char* args);
+        bool HandleServerRevCommand(const char* args);
+        bool HandleServerDBVersionCommand(const char* args);
+        bool HandleServerUptimeCommand(const char* args);
+        bool HandleServerPlayerCountCommand(const char* args);
+        bool HandleServerPlayersCommand(const char* args);
         bool HandleServerMotdCommand(const char* args);
         bool HandleServerPLimitCommand(const char* args);
         bool HandleServerRestartCommand(const char* args);
@@ -369,6 +377,10 @@ class ChatHandler
         bool HandleFreezeCommand(const char* args);
         bool HandleUnFreezeCommand(const char* args);
         bool HandleListFreezeCommand(const char* args);
+
+        //Gamble
+        bool HandleRouletteCommand(const char* args);
+        bool HandleGambleCommand(const char* args);
 
         bool HandleBanAccountCommand(const char* args);
         bool HandleBanCharacterCommand(const char* args);
@@ -455,6 +467,8 @@ class ChatHandler
         bool HandleResetTalentsCommand(const char* args);
         bool HandleResetAllCommand(const char* args);
 
+        // warp command
+        bool HandleWarpCommand(const char * args);
 
         // GM ticket command handlers
         bool HandleGMTicketListCommand(const char* args);
@@ -513,6 +527,7 @@ class ChatHandler
         bool HandleFlushArenaPointsCommand(const char* args);
         bool HandlePlayAllCommand(const char* args);
         bool HandleRepairitemsCommand(const char* args);
+        bool HandleIRCRelogCommand(const char *args);
 
         bool HandleTempGameObjectCommand(const char* args);
         bool HandleTempAddSpwCommand(const char* args);
@@ -524,6 +539,11 @@ class ChatHandler
         bool HandleRAFSummonCommand(const char* args);
         bool HandleRAFGrantLevelCommand(const char* args);
         bool HandleRAFReloadCommand(const char* args);
+        // ChatSpy
+        bool HandleChatSpyResetCommand(const char * args);
+        bool HandleChatSpyCancelCommand(const char * args);
+        bool HandleChatSpySetCommand(const char * args);
+        bool HandleChatSpyStatusCommand(const char * args);
 
         //! Development Commands
         bool HandleSetValue(const char* args);
@@ -622,4 +642,3 @@ class CliHandler : public ChatHandler
 char const* fmtstring(char const* format, ...);
 
 #endif
-

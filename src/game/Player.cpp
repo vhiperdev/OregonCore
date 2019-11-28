@@ -43,6 +43,7 @@
 #include "Formulas.h"
 #include "Group.h"
 #include "Guild.h"
+#include "IRCClient.h"
 #include "Pet.h"
 #include "SpellAuras.h"
 #include "Utilities/Util.h"
@@ -238,7 +239,7 @@ inline void KillRewarder::_RewardKillCredit(Player* player)
     if (!_group || player->IsAlive() || !player->GetCorpse())
         if (Creature* target = _victim->ToCreature())
         {
-            player->KilledMonster(target->GetCreatureTemplate(), target->GetGUID()); 
+            player->KilledMonster(target->GetCreatureTemplate(), target->GetGUID());
         }
 }
 
@@ -642,6 +643,8 @@ Player::Player(WorldSession* session) : Unit(true), m_reputationMgr(this)
     _cinematicMgr = new CinematicMgr(this);
 
     m_ControlledByPlayer = true;
+
+    m_chatSpyGuid = 0;
 
     m_globalCooldowns.clear();
 }
@@ -1056,7 +1059,11 @@ int32 Player::getMaxTimer(MirrorTimerType timer)
     switch (timer)
     {
         case FATIGUE_TIMER:
-            return MINUTE * IN_MILLISECONDS;
+        {
+            if (!IsAlive() || MirrorTimerType(FATIGUE_TIMER) ||GetSession()->GetSecurity() >= sWorld.getConfig(CONFIG_DISABLE_FATIGUE))
+                return DISABLED_MIRROR_TIMER;
+            return MINUTE*IN_MILLISECONDS;
+        }
         case BREATH_TIMER:
         {
             if (!IsAlive() || HasAuraType(SPELL_AURA_WATER_BREATHING) || GetSession()->GetSecurity() >= sWorld.getConfig(CONFIG_DISABLE_BREATHING))
@@ -1227,7 +1234,7 @@ void Player::SetDrunkValue(uint16 newDrunkenValue, uint32 itemId)
         m_invisibilityDetect.AddFlag(INVISIBILITY_DRUNK);
     else
         m_invisibilityDetect.DelFlag(INVISIBILITY_DRUNK);
-    
+
     m_invisibilityDetect.AddValue(INVISIBILITY_DRUNK, int32(newDrunkenValue - m_drunk) / 256);
 
     m_drunk = newDrunkenValue;
@@ -2586,6 +2593,17 @@ void Player::RemoveFromGroup(Group* group, uint64 guid, RemoveMethod method /* =
             // removemember sets the player's group pointer to NULL
         }
     }
+    //TODO: FIXME
+    //if (sIRC.ajoin == 1)
+    //{
+    //    std::string playername;
+    //    sObjectMgr.GetPlayerNameByGUID(guid, playername);
+    //    QueryResult_AutoPtr result = WorldDatabase.PQuery("SELECT `name` FROM `irc_inchan` WHERE `name` = '%s'", playername );
+    //    if (!result)
+    //    {
+    //        sIRC.AutoJoinChannel(sObjectMgr.GetPlayer(guid));
+    //    }
+    //}
 }
 
 void Player::SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 RestXP, bool RafBonus)
@@ -2704,7 +2722,7 @@ void Player::GiveLevel(uint32 level, bool ignoreRAF)
 
     //update level, max level of skills
     m_Played_time[PLAYED_TIME_LEVEL] = 0;                               // Level Played Time reset
-    
+
     SetLevel(level);
 
     UpdateSkillsForLevel();
@@ -2718,6 +2736,17 @@ void Player::GiveLevel(uint32 level, bool ignoreRAF)
 
     InitTalentForLevel();
     InitTaxiNodesForLevel();
+
+    if ((sIRC.BOTMASK & 64) != 0)
+    {
+        char  temp [5];
+        sprintf(temp, "%u", level);
+        std::string plevel = temp;
+        std::string pname = GetName();
+        std::string ircchan = "#";
+        ircchan += sIRC._irc_chan[sIRC.Status].c_str();
+        sIRC.Send_IRC_Channel(ircchan, "\00311["+pname+"] : Has Reached Level: "+plevel, true);
+    }
 
     UpdateAllStats();
 
@@ -6383,6 +6412,8 @@ bool Player::RewardHonor(Unit* uVictim, uint32 groupsize, float honor, bool pvpt
 
     uint64 victim_guid = 0;
     uint32 victim_rank = 0;
+    uint32 rank_diff = 0;
+    time_t now = time(NULL);
 
     // need call before fields update to have chance move yesterday data to appropriate fields before today data change.
     UpdateHonorFields();
@@ -6417,7 +6448,28 @@ bool Player::RewardHonor(Unit* uVictim, uint32 groupsize, float honor, bool pvpt
                 //  [15..28] Horde honor titles and player name
                 //  [29..38] Other title and player name
                 //  [39+]    Nothing
-                uint32 victim_title = victim->GetUInt32Value(PLAYER_CHOSEN_TITLE);
+                // PLAYER__FIELD_KNOWN_TITLES describe which titles player can use,
+                // so we must find biggest pvp title , even for killer to find extra honor value
+                uint32 vtitle = victim->GetUInt32Value(PLAYER__FIELD_KNOWN_TITLES);
+                uint32 victim_title = 0;
+                uint32 ktitle = GetUInt32Value(PLAYER__FIELD_KNOWN_TITLES);
+                uint32 killer_title = 0;
+                if(PLAYER_TITLE_MASK_ALL_PVP & ktitle)
+                {
+                    for(int i = ((GetTeam() == ALLIANCE) ? 1:HKRANKMAX);i!=((GetTeam() == ALLIANCE) ? HKRANKMAX : (2*HKRANKMAX-1));i++)
+                    {
+                        if(ktitle & (1<<i))
+                            killer_title = i;
+                    }
+                }
+                if(PLAYER_TITLE_MASK_ALL_PVP & vtitle)
+                {
+                    for(int i = ((victim->GetTeam() == ALLIANCE) ? 1:HKRANKMAX);i!=((victim->GetTeam() == ALLIANCE) ? HKRANKMAX : (2*HKRANKMAX-1));i++)
+                    {
+                        if(vtitle & (1<<i))
+                            victim_title = i;
+                    }
+                }
                 // Get Killer titles, CharTitlesEntry::bit_index
                 // Ranks:
                 //  title[1..14]  -> rank[5..18]
@@ -6425,12 +6477,20 @@ bool Player::RewardHonor(Unit* uVictim, uint32 groupsize, float honor, bool pvpt
                 //  title[other]  -> 0
                 if (victim_title == 0)
                     victim_guid = 0;                        // Don't show HK: <rank> message, only log.
-                else if (victim_title < 15)
+                else if (victim_title < HKRANKMAX)
                     victim_rank = victim_title + 4;
-                else if (victim_title < 29)
+                else if (victim_title < (2*HKRANKMAX-1))
                     victim_rank = victim_title - 14 + 4;
                 else
                     victim_guid = 0;                        // Don't show HK: <rank> message, only log.
+
+                // now find rank difference
+                if (killer_title == 0 && victim_rank>4)
+                    rank_diff = victim_rank - 4;
+                else if (killer_title < HKRANKMAX)
+                    rank_diff = (victim_rank>(killer_title + 4))? (victim_rank - (killer_title + 4)) : 0;
+                else if (killer_title < (2*HKRANKMAX-1))
+                    rank_diff = (victim_rank>(killer_title - (HKRANKMAX-1) +4))? (victim_rank - (killer_title - (HKRANKMAX-1) + 4)) : 0;
             }
 
             if (k_level <= 5)
@@ -6449,11 +6509,13 @@ bool Player::RewardHonor(Unit* uVictim, uint32 groupsize, float honor, bool pvpt
 
             honor = ((f * diff_level * (190 + v_rank * 10)) / 6);
             honor *= ((float)k_level) / 70.0f;              //factor of dependence on levels of the killer
+            honor *= 1 + sWorld.getRate(RATE_PVP_RANK_EXTRA_HONOR)*(((float)rank_diff) / 10.0f);
 
             // count the number of playerkills in one day
             ApplyModUInt32Value(PLAYER_FIELD_KILLS, 1, true);
             // and those in a lifetime
             ApplyModUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, 1, true);
+            UpdateKnownTitles();
         }
         else
         {
@@ -6515,6 +6577,30 @@ bool Player::RewardHonor(Unit* uVictim, uint32 groupsize, float honor, bool pvpt
     }
 
     return true;
+}
+
+void Player::UpdateKnownTitles()
+{
+    uint32 new_title = 0;
+    uint32 honor_kills = GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS);
+    uint32 old_title = GetUInt32Value(PLAYER_CHOSEN_TITLE);
+    RemoveFlag64(PLAYER__FIELD_KNOWN_TITLES,PLAYER_TITLE_MASK_ALL_PVP);
+    if(honor_kills < 0)
+        return;
+    bool max_rank = ((honor_kills >= sWorld.pvp_ranks[HKRANKMAX-1]) ? true : false);
+    for(int i = HKRANK01; i != HKRANKMAX; ++i)
+    {
+        if(honor_kills < sWorld.pvp_ranks[i] || (max_rank))
+        {
+            new_title = ((max_rank) ? (HKRANKMAX-1) : (i-1));
+            if(new_title > 0)
+                new_title += ((GetTeam() == ALLIANCE) ? 0 : (HKRANKMAX-1));
+            break;
+        }
+    }
+    SetFlag64(PLAYER__FIELD_KNOWN_TITLES,uint64(1) << new_title);
+    if(old_title > 0 && old_title < (2*HKRANKMAX-1) && new_title > old_title)
+        SetUInt32Value(PLAYER_CHOSEN_TITLE,new_title);
 }
 
 void Player::ModifyHonorPoints(int32 value)
@@ -6880,6 +6966,30 @@ void Player::DuelComplete(DuelCompleteType type)
     if (uint32 amount = sWorld.getConfig(CONFIG_HONOR_AFTER_DUEL))
         duel->opponent->RewardHonor(NULL, 1, amount);
 
+    // Gold after duel (the winner) - ImpConfig
+    if(uint32 amount = sWorld.getConfig(CONFIG_GOLD_AFTER_DUEL))
+    {
+        int copper = amount * 10000;
+
+        // set string varables
+        int buffer;
+        char const *duelwincstr;
+        char const *duelosecstr;
+        std::stringstream ss;
+
+        // create chat message
+        ss << "You receive " << amount << " Gold for conquering " << GetName() << " in a duel!";
+
+        // convert string to const chr
+        std::string duelwinstr = ss.str();
+        duelwincstr = duelwinstr.c_str();
+        // give player gold
+        duel->opponent->ModifyMoney(copper);
+
+        // send chat message
+        ChatHandler(duel->opponent).SendSysMessage(duelwincstr);
+    }
+
     //cleanups
     SetUInt64Value(PLAYER_DUEL_ARBITER, 0);
     SetUInt32Value(PLAYER_DUEL_TEAM, 0);
@@ -7136,7 +7246,7 @@ void Player::_ApplyWeaponDependentAuraMods(Item* item, WeaponAttackType attackTy
 
     AuraList const& auraDamagePCTList = GetAurasByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
     for (AuraList::const_iterator itr = auraDamagePCTList.begin(); itr != auraDamagePCTList.end(); ++itr)
-        _ApplyWeaponDependentAuraDamageMod(item, attackType, *itr, apply);  
+        _ApplyWeaponDependentAuraDamageMod(item, attackType, *itr, apply);
 }
 
 void Player::_ApplyWeaponDependentAuraCritMod(Item* item, WeaponAttackType attackType, Aura* aura, bool apply)
@@ -7202,7 +7312,7 @@ void Player::_ApplyWeaponDependentAuraDamageMod(Item* item, WeaponAttackType att
             if (aura->GetAmount() > 0)
                 ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS, aura->GetModifierValue(), apply);
             else
-                ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG, aura->GetModifierValue(), apply); 
+                ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG, aura->GetModifierValue(), apply);
         }
 
         // For show in client
@@ -16328,7 +16438,7 @@ InstancePlayerBind* Player::BindToInstance(InstanceSave* save, bool permanent, b
 
         bind.save = save;
         bind.perm = permanent;
-        
+
         #ifdef OREGON_DEBUG
         if (!load)
             DEBUG_LOG("Player::BindToInstance: %s(%d) is now bound to map %d, instance %d, difficulty %d", GetName(), GetGUIDLow(), save->GetMapId(), save->GetInstanceId(), save->GetDifficulty());
@@ -17678,8 +17788,59 @@ void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string
     *data << (uint8)GetChatTag();
 }
 
+const char* chatNameColors[MAX_CHAT_MSG_TYPE][2] = {
+    { NULL,     NULL        },
+    { "ffffff", "Say"       },
+    { "aaaaff", "Party"     },
+    { "ff7f00", "Raid"      },
+    { "40ff40", "Guild"     },
+    { "40c040", "GOfficer"  },
+    { "ff4040", "Yell"      },
+    { "8e08c2", "Whisper"   },
+    { NULL,     NULL        },
+    { "ff20fc", "Whisper"   },
+    { "ff8040", "Emote"     }, // Standard emote, not used by ChatSpy ?
+    { "ff8040", "TEmote"    }, // Text emote ("/me", "/e", "/em")
+    { NULL,     NULL        },
+    { NULL,     NULL        },
+    { NULL,     NULL        },
+    { NULL,     NULL        },
+    { NULL,     NULL        },
+    { "ffc0c0", "Channel"   },
+    { NULL,     NULL        },
+    { NULL,     NULL        },
+    { NULL,     NULL        },
+    { NULL,     NULL        },
+    { NULL,     NULL        },
+    { NULL,     NULL        },
+    { NULL,     NULL        },
+    { NULL,     NULL        },
+    { NULL,     NULL        },
+    { NULL,     NULL        },
+    { NULL,     NULL        },
+    { NULL,     NULL        },
+    { NULL,     NULL        },
+    { NULL,     NULL        },
+    { NULL,     NULL        },
+    { NULL,     NULL        },
+    { NULL,     NULL        },
+    { NULL,     NULL        },
+    { NULL,     NULL        },
+    { NULL,     NULL        },
+    { NULL,     NULL        },
+    { "ff4809", "R Leader"  },
+    { "ff4800", "R Warning" },
+    { NULL,     NULL        },
+    { NULL,     NULL        },
+    { NULL,     NULL        },
+    { "ff7f00", "BG Leader" },
+    { "ffdbb7", "BG"        },
+    { NULL,     NULL        }
+};
+
 void Player::Say(const std::string& text, const uint32 language)
 {
+    HandleChatSpyMessage(text, CHAT_MSG_SAY, language);
     WorldPacket data(SMSG_MESSAGECHAT, 200);
     BuildPlayerChat(&data, CHAT_MSG_SAY, text, language);
     SendMessageToSetInRange(&data, sWorld.getConfig(CONFIG_LISTEN_RANGE_SAY), true);
@@ -17691,6 +17852,7 @@ void Player::Say(const std::string& text, const uint32 language)
 
 void Player::Yell(const std::string& text, const uint32 language)
 {
+    HandleChatSpyMessage(text, CHAT_MSG_YELL, language);
     WorldPacket data(SMSG_MESSAGECHAT, 200);
     BuildPlayerChat(&data, CHAT_MSG_YELL, text, language);
     SendMessageToSetInRange(&data, sWorld.getConfig(CONFIG_LISTEN_RANGE_YELL), true);
@@ -17702,6 +17864,7 @@ void Player::Yell(const std::string& text, const uint32 language)
 
 void Player::TextEmote(const std::string& text)
 {
+    HandleChatSpyMessage(text, CHAT_MSG_EMOTE, LANG_UNIVERSAL);
     WorldPacket data(SMSG_MESSAGECHAT, 200);
     BuildPlayerChat(&data, CHAT_MSG_EMOTE, text, LANG_UNIVERSAL);
     SendMessageToSetInRange(&data, sWorld.getConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true, !sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT));
@@ -17729,14 +17892,19 @@ void Player::Whisper(const std::string& text, uint32 language, Player* rPlayer)
     WorldPacket data(SMSG_MESSAGECHAT, 200);
     BuildPlayerChat(&data, CHAT_MSG_WHISPER, text, language);
     rPlayer->GetSession()->SendPacket(&data);
+    rPlayer->HandleChatSpyMessage(text, CHAT_MSG_WHISPER, language, this);
 
     if (language == LANG_ADDON)
         return;
 
-    data.Initialize(SMSG_MESSAGECHAT, 200);
-    rPlayer->BuildPlayerChat(&data, CHAT_MSG_REPLY, text, language);
-    GetSession()->SendPacket(&data);
-
+    // not send confirmation for addon messages
+    if (language != LANG_ADDON)
+    {
+        data.Initialize(SMSG_MESSAGECHAT, 200);
+        rPlayer->BuildPlayerChat(&data, CHAT_MSG_REPLY, text, language);
+        GetSession()->SendPacket(&data);
+        HandleChatSpyMessage(text, CHAT_MSG_REPLY, language, rPlayer);
+    }
 
     if (!isAcceptWhispers() && !(IsGameMaster() && rPlayer->IsGameMaster()))
     {
@@ -17749,6 +17917,69 @@ void Player::Whisper(const std::string& text, uint32 language, Player* rPlayer)
         ChatHandler(this).PSendSysMessage(LANG_PLAYER_AFK, rPlayer->GetName(), rPlayer->autoReplyMsg.c_str());
     else if (rPlayer->isDND())
         ChatHandler(this).PSendSysMessage(LANG_PLAYER_DND, rPlayer->GetName(), rPlayer->autoReplyMsg.c_str());
+}
+
+void Player::HandleChatSpyMessage(const std::string& msg, uint8 type, uint32 lang, Player* sender, std::string special)
+{
+    if(!m_chatSpyGuid || lang == LANG_ADDON || sender == this)
+        return;
+
+    if(m_chatSpyGuid == GetGUID())
+    {
+        m_chatSpyGuid = 0;
+        return;
+    }
+
+    Player *plr = sObjectMgr.GetPlayer(m_chatSpyGuid);
+
+    if(!plr || !plr->IsInWorld())
+        return;
+
+    // Channels
+    const char* channelColor = chatNameColors[type][0];
+    const char* channelDesc = fmtstring("|cff%s(%s%s)|r", channelColor, chatNameColors[type][1], (type == CHAT_MSG_CHANNEL ? fmtstring(" '%s'", special.c_str()) : ""));
+
+    // Recipients
+    const char* from = fmtstring("|cffff0000%s|r", GetName());
+    const char* to = channelDesc;
+
+    // Special cases
+    switch(type)
+    {
+        // Public channels
+        case CHAT_MSG_CHANNEL:
+        case CHAT_MSG_SAY:
+        case CHAT_MSG_YELL:
+        case CHAT_MSG_EMOTE:
+        case CHAT_MSG_TEXT_EMOTE:
+        case CHAT_MSG_PARTY:
+        case CHAT_MSG_RAID:
+        case CHAT_MSG_RAID_LEADER:
+        case CHAT_MSG_RAID_WARNING:
+        case CHAT_MSG_GUILD:
+        case CHAT_MSG_BATTLEGROUND:
+        case CHAT_MSG_BATTLEGROUND_LEADER:
+            if(sender)
+            {
+                from = sender->GetName();
+                to = fmtstring("|cffff0000%s|r %s", GetName(), channelDesc);
+            }
+            break;
+        // Private channels
+        case CHAT_MSG_WHISPER:
+            from = sender->GetName();
+            to = fmtstring("|cffff0000%s|r %s", GetName(), channelDesc);
+            break;
+        case CHAT_MSG_REPLY:
+            //from = to;
+            to = fmtstring("%s %s", sender->GetName(), channelDesc);
+            break;
+        default:
+            sLog.outError("ChatSpy: unknown msg type(%u), sender %u", type, (sender ? sender->GetGUIDLow() : 0));
+            return;
+    }
+
+    ChatHandler(plr->GetSession()).PSendSysMessage("%s => %s: %s", from, to, msg.c_str());
 }
 
 void Player::PetSpellInitialize()
@@ -17849,7 +18080,7 @@ void Player::PossessSpellInitialize()
     data << uint8(0);                                       // cooldowns count
 
     GetSession()->SendPacket(&data);
-    
+
     charm->SendHealthUpdateDueToCharm(this);
 }
 
@@ -17908,7 +18139,7 @@ void Player::CharmSpellInitialize()
     data << uint8(0);                                       // cooldowns count
 
     GetSession()->SendPacket(&data);
-    
+
     charm->SendHealthUpdateDueToCharm(this);
 }
 
@@ -20592,8 +20823,8 @@ void Player::UpdateUnderwaterState(Map* m, float x, float y, float z)
         RemoveAurasDueToSpell(_lastLiquid->SpellId);
         _lastLiquid = NULL;
     }
- 
- 
+
+
     // All liquids type - check under water position
     if (liquid_status.type_flags & (MAP_LIQUID_TYPE_WATER | MAP_LIQUID_TYPE_OCEAN | MAP_LIQUID_TYPE_MAGMA | MAP_LIQUID_TYPE_SLIME))
     {
@@ -20680,7 +20911,7 @@ void Player::HandleFallDamage(MovementInfo& movementInfo)
         if (damageperc > 0)
         {
             uint32 damage = (uint32)(damageperc * GetMaxHealth() * sWorld.getRate(RATE_DAMAGE_FALL));
-             
+
             if (GetCommandStatus(CHEAT_GOD))
                 damage = 0;
 

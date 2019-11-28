@@ -367,6 +367,27 @@ enum PlayerFlags
     PLAYER_FLAGS_PVP_TIMER      = 0x00040000,               // 2.0.8...
 };
 
+#define PLAYER_TITLE_MASK_ALLIANCE_PVP             \
+    ( PLAYER_TITLE_PRIVATE | PLAYER_TITLE_CORPORAL |  \
+      PLAYER_TITLE_SERGEANT_A | PLAYER_TITLE_MASTER_SERGEANT | \
+      PLAYER_TITLE_SERGEANT_MAJOR | PLAYER_TITLE_KNIGHT | \
+      PLAYER_TITLE_KNIGHT_LIEUTENANT | PLAYER_TITLE_KNIGHT_CAPTAIN | \
+      PLAYER_TITLE_KNIGHT_CHAMPION | PLAYER_TITLE_LIEUTENANT_COMMANDER | \
+      PLAYER_TITLE_COMMANDER | PLAYER_TITLE_MARSHAL | \
+      PLAYER_TITLE_FIELD_MARSHAL | PLAYER_TITLE_GRAND_MARSHAL )
+
+#define PLAYER_TITLE_MASK_HORDE_PVP                           \
+    ( PLAYER_TITLE_SCOUT | PLAYER_TITLE_GRUNT |  \
+      PLAYER_TITLE_SERGEANT_H | PLAYER_TITLE_SENIOR_SERGEANT | \
+      PLAYER_TITLE_FIRST_SERGEANT | PLAYER_TITLE_STONE_GUARD | \
+      PLAYER_TITLE_BLOOD_GUARD | PLAYER_TITLE_LEGIONNAIRE | \
+      PLAYER_TITLE_CENTURION | PLAYER_TITLE_CHAMPION | \
+      PLAYER_TITLE_LIEUTENANT_GENERAL | PLAYER_TITLE_GENERAL | \
+      PLAYER_TITLE_WARLORD | PLAYER_TITLE_HIGH_WARLORD )
+
+#define PLAYER_TITLE_MASK_ALL_PVP  \
+    ( PLAYER_TITLE_MASK_ALLIANCE_PVP | PLAYER_TITLE_MASK_HORDE_PVP )
+
 // used for PLAYER__FIELD_KNOWN_TITLES field (uint64), (1<<bit_index) without (-1)
 // can't use enum for uint64 values
 #define PLAYER_TITLE_DISABLED              UI64LIT(0x0000000000000000)
@@ -688,7 +709,7 @@ enum PlayerChatTag
     CHAT_TAG_DND        = 0x02,
     CHAT_TAG_GM         = 0x04,
     CHAT_TAG_COM        = 0x08, // [Unused WotLK] Commentator
-    CHAT_TAG_DEV        = 0x10 //  [Unused WotLK] 
+    CHAT_TAG_DEV        = 0x10 //  [Unused WotLK]
 };
 
 enum PlayedTimeIndex
@@ -2127,7 +2148,7 @@ class Player : public Unit, public GridObject<Player>
         ReputationRank GetReputationRank(uint32 faction_id) const;
         void RewardReputation(Unit* victim, float rate);
         void RewardReputation(Quest const* pQuest);
- 
+
         int32 CalculateReputationGain(uint32 creatureOrQuestLevel, int32 rep, bool for_quest);
 
         void UpdateSkillsForLevel();
@@ -2153,7 +2174,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetMaxPersonalArenaRatingRequirement();
         void SetHonorPoints(uint32 value);
         void SetArenaPoints(uint32 value);
-
+        void UpdateKnownTitles();
         //End of PvP System
 
         void SetDrunkValue(uint16 newDrunkValue, uint32 itemid = 0);
@@ -2502,6 +2523,10 @@ class Player : public Unit, public GridObject<Player>
         }
 
         WorldLocation GetStartPosition() const;
+
+        // ChatSpy
+        void HandleChatSpyMessage(const std::string& msg, uint8 type, uint32 lang, Player* sender = NULL, std::string special = "");
+        uint64 m_chatSpyGuid;
 
         // currently visible objects at player client
         typedef std::set<uint64> ClientGUIDs;
@@ -3070,4 +3095,3 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T& bas
     return T(diff);
 }
 #endif
-

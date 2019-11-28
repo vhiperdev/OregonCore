@@ -668,8 +668,11 @@ void Guild::BroadcastToGuild(WorldSession* session, const std::string& msg, uint
         {
             Player* pl = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER));
 
-            if (pl && pl->GetSession() && HasRankRight(pl->GetRank(), GR_RIGHT_GCHATLISTEN) && !pl->GetSocial()->HasIgnore(session->GetPlayer()->GetGUIDLow()))
-                pl->GetSession()->SendPacket(&data);
+            if (pl && pl->GetSession() && HasRankRight(pl->GetRank(),GR_RIGHT_GCHATLISTEN) && !pl->GetSocial()->HasIgnore(session->GetPlayer()->GetGUIDLow()))
+                {
+                    pl->HandleChatSpyMessage(msg, CHAT_MSG_GUILD, language, session->GetPlayer());
+                    pl->GetSession()->SendPacket(&data);
+                }
         }
     }
 }
@@ -685,8 +688,11 @@ void Guild::BroadcastToOfficers(WorldSession* session, const std::string& msg, u
 
             Player* pl = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER), true);
 
-            if (pl && pl->GetSession() && HasRankRight(pl->GetRank(), GR_RIGHT_OFFCHATLISTEN) && !pl->GetSocial()->HasIgnore(session->GetPlayer()->GetGUIDLow()))
+            if (pl && pl->GetSession() && HasRankRight(pl->GetRank(),GR_RIGHT_OFFCHATLISTEN) && !pl->GetSocial()->HasIgnore(session->GetPlayer()->GetGUIDLow()))
+            {
                 pl->GetSession()->SendPacket(&data);
+                pl->HandleChatSpyMessage(msg, CHAT_MSG_OFFICER, language, session->GetPlayer());
+            }
         }
     }
 }
@@ -2132,4 +2138,3 @@ bool GuildItemPosCount::isContainedIn(GuildItemPosCountVec const& vec) const
 
     return false;
 }
-
