@@ -43,7 +43,7 @@
 #include "Formulas.h"
 #include "Group.h"
 #include "Guild.h"
-#include "IRCClient.h"
+
 #include "Pet.h"
 #include "SpellAuras.h"
 #include "Utilities/Util.h"
@@ -2736,17 +2736,6 @@ void Player::GiveLevel(uint32 level, bool ignoreRAF)
 
     InitTalentForLevel();
     InitTaxiNodesForLevel();
-
-    if ((sIRC.BOTMASK & 64) != 0)
-    {
-        char  temp [5];
-        sprintf(temp, "%u", level);
-        std::string plevel = temp;
-        std::string pname = GetName();
-        std::string ircchan = "#";
-        ircchan += sIRC._irc_chan[sIRC.Status].c_str();
-        sIRC.Send_IRC_Channel(ircchan, "\00311["+pname+"] : Has Reached Level: "+plevel, true);
-    }
 
     UpdateAllStats();
 

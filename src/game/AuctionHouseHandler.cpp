@@ -28,7 +28,7 @@
 #include "UpdateMask.h"
 #include "Utilities/Util.h"
 #include "LuaEngine.h"
-#include "IRCClient.h"
+
 
 // please DO NOT use iterator++, because it is slower than ++iterator!!!
 // post-incrementation is always slower than pre-incrementation !
@@ -283,9 +283,6 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recv_data)
     AH->SaveToDB();
     pl->SaveInventoryAndGoldToDB();
     CharacterDatabase.CommitTransaction();
-
-    if ((sIRC.BOTMASK & 1024) != 0)
-        sIRC.AHFunc(it->GetEntry(), it->GetProto()->Name1, pl->GetName(), AH->GetHouseId());
 
     SendAuctionCommandResult(AH->Id, AUCTION_SELL_ITEM, AUCTION_OK);
 

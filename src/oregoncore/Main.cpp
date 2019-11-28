@@ -20,7 +20,7 @@
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
 #include "Config/Config.h"
-#include "IRCClient.h"
+
 #include "Log.h"
 #include "Master.h"
 #include <ace/Version.h>

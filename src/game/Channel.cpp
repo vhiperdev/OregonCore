@@ -19,7 +19,7 @@
 #include "ObjectMgr.h"
 #include "SocialMgr.h"
 #include "World.h"
-#include "IRCClient.h"
+
 
 Channel::Channel(const std::string& name, uint32 channel_id)
     : m_name(name), m_announce(true), m_moderate(false), m_password(""), m_flags(0), m_channelId(channel_id), m_ownerGUID(0)
@@ -109,7 +109,6 @@ void Channel::Join(uint64 p, const char* pass)
 
     MakeYouJoined(&data);
     SendToOne(&data, p);
-    sIRC.Handle_WoW_Channel(m_name, sObjectMgr.GetPlayer(p), CHANNEL_JOIN);
 
     JoinNotify(p);
 
@@ -156,7 +155,6 @@ void Channel::Leave(uint64 p, bool send)
             SendToAll(&data);
         }
 
-        sIRC.Handle_WoW_Channel(m_name, sObjectMgr.GetPlayer(p), CHANNEL_LEAVE);
         LeaveNotify(p);
 
         if (changeowner)

@@ -40,7 +40,6 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/framework
   ${CMAKE_SOURCE_DIR}/src/game
   ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour
-  ${CMAKE_SOURCE_DIR}/src/irc
   ${ACE_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
@@ -72,7 +71,6 @@ target_link_libraries(oregon-core
   gsoap
   Recast
   Detour
-  irc
   ${JEMALLOC_LIBRARY}
   ${TERMCAP_LIBRARY}
   ${ACE_LIBRARY}

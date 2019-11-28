@@ -19,7 +19,7 @@
 #define OREGONCORE_CHAT_H
 
 #include "SharedDefines.h"
-#include "IRCClient.h"
+
 
 
 class ChatHandler;
@@ -144,7 +144,6 @@ class ChatHandler
         bool HandleSendItemsCommand(const char* args);
         bool HandleSendMailCommand(const char* args);
         bool HandleSendMoneyCommand(const char* args);
-        bool HandleIRCpmCommand(const char* args);
 
         bool HandleDebugPlayCinematicCommand(const char* args);
         bool HandleDebugPlaySoundCommand(const char* args);
@@ -527,7 +526,6 @@ class ChatHandler
         bool HandleFlushArenaPointsCommand(const char* args);
         bool HandlePlayAllCommand(const char* args);
         bool HandleRepairitemsCommand(const char* args);
-        bool HandleIRCRelogCommand(const char *args);
 
         bool HandleTempGameObjectCommand(const char* args);
         bool HandleTempAddSpwCommand(const char* args);
