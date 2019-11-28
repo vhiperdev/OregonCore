@@ -39,6 +39,15 @@ bool ChatHandler::load_command_table = true;
 
 ChatCommand * ChatHandler::getCommandTable()
 {
+    static ChatCommand chatspyCommandTable[] =
+    {
+        { "reset",          SEC_ADMINISTRATOR,  false, &ChatHandler::HandleChatSpyResetCommand,        "", NULL },
+        { "cancel",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleChatSpyCancelCommand,       "", NULL },
+        { "status",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleChatSpyStatusCommand,       "", NULL },
+        { "",               SEC_ADMINISTRATOR,  false, &ChatHandler::HandleChatSpySetCommand,          "", NULL },
+        { NULL,             0,                  false, NULL,                                           "", NULL }
+    };
+
     static ChatCommand accountSetCommandTable[] =
     {
         { "addon",          SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleAccountSetAddonCommand,     "", NULL },
@@ -102,6 +111,12 @@ ChatCommand * ChatHandler::getCommandTable()
         { "idlerestart",    SEC_ADMINISTRATOR,  true,  NULL,                                           "", serverIdleRestartCommandTable },
         { "idleshutdown",   SEC_ADMINISTRATOR,  true,  NULL,                                           "", serverShutdownCommandTable },
         { "info",           SEC_PLAYER,         true,  &ChatHandler::HandleServerInfoCommand,          "", NULL },
+        { "version",        SEC_PLAYER,         true,  &ChatHandler::HandleServerVersionCommand,       "", NULL },
+        { "rev",            SEC_PLAYER,         true,  &ChatHandler::HandleServerRevCommand,           "", NULL },
+        { "dbversion",      SEC_PLAYER,         true,  &ChatHandler::HandleServerDBVersionCommand,     "", NULL },
+        { "uptime",         SEC_PLAYER,         true,  &ChatHandler::HandleServerUptimeCommand,        "", NULL },
+        { "playercount",    SEC_PLAYER,         true,  &ChatHandler::HandleServerPlayerCountCommand,   "", NULL },
+        { "players",        SEC_PLAYER,         true,  &ChatHandler::HandleServerPlayersCommand,       "", NULL },
         { "motd",           SEC_PLAYER,         true,  &ChatHandler::HandleServerMotdCommand,          "", NULL },
         { "plimit",         SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleServerPLimitCommand,        "", NULL },
         { "restart",        SEC_ADMINISTRATOR,  true,  NULL,                                           "", serverRestartCommandTable },
@@ -606,6 +621,8 @@ ChatCommand * ChatHandler::getCommandTable()
         { "server",         SEC_ADMINISTRATOR,  true,  NULL,                                           "", serverCommandTable   },
         { "pet",            SEC_GAMEMASTER,     false, NULL,                                           "", petCommandTable      },
 
+        { "chatspy",        SEC_ADMINISTRATOR,  false, NULL,                                           "", chatspyCommandTable  }, 
+
         { "aura",           SEC_ADMINISTRATOR,  false, &ChatHandler::HandleAuraCommand,                "", NULL },
         { "unaura",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleUnAuraCommand,              "", NULL },
         { "nameannounce",   SEC_MODERATOR,      false, &ChatHandler::HandleNameAnnounceCommand,        "", NULL },
@@ -670,7 +687,13 @@ ChatCommand * ChatHandler::getCommandTable()
         { "flusharenapoints",SEC_ADMINISTRATOR, true,  &ChatHandler::HandleFlushArenaPointsCommand,    "", NULL },
         { "sendmessage",    SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleSendMessageCommand,         "", NULL },
         { "playall",        SEC_ADMINISTRATOR,  false, &ChatHandler::HandlePlayAllCommand,             "", NULL },
+        { "ocrecon",        SEC_MODERATOR,      true,  &ChatHandler::HandleIRCRelogCommand,            "", NULL },
         { "repairitems",    SEC_GAMEMASTER,     false, &ChatHandler::HandleRepairitemsCommand,         "", NULL },
+
+        //Allows your players to gamble for fun and prizes
+        { "gamble",         SEC_PLAYER,         false, &ChatHandler::HandleGambleCommand,              "", NULL },
+        { "roulette",       SEC_PLAYER,         false, &ChatHandler::HandleRouletteCommand,            "", NULL },
+
         { "freeze",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleFreezeCommand,              "", NULL },
         { "unfreeze",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleUnFreezeCommand,            "", NULL },
         { "listfreeze",     SEC_ADMINISTRATOR,  false, &ChatHandler::HandleListFreezeCommand,          "", NULL },
@@ -678,6 +701,9 @@ ChatCommand * ChatHandler::getCommandTable()
         { "unpossess",      SEC_ADMINISTRATOR,  false, &ChatHandler::HandleUnPossessCommand,           "", NULL },
         { "bindsight",      SEC_ADMINISTRATOR,  false, &ChatHandler::HandleBindSightCommand,           "", NULL },
         { "unbindsight",    SEC_ADMINISTRATOR,  false, &ChatHandler::HandleUnbindSightCommand,         "", NULL },
+
+        // warp command
+        { "warp",           SEC_ADMINISTRATOR,  false, &ChatHandler::HandleWarpCommand,                "", NULL },
 
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
@@ -888,6 +914,15 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand *table, const char* text, co
                     sLog.outCommand(m_session->GetAccountId(),"Command: %s [Player: %s (Account: %u) X: %f Y: %f Z: %f Map: %u Selected: %s]",
                         fullcmd.c_str(),p->GetName(),m_session->GetAccountId(),p->GetPositionX(),p->GetPositionY(),p->GetPositionZ(),p->GetMapId(),
                         sel_guid.GetString().c_str());
+
+                    if ((sIRC.logmask & 2) != 0)
+                    {
+                        std::string logchan = "#";
+                        logchan += sIRC.logchan;
+                        std::stringstream ss;
+                        ss << sIRC.iLog.GetLogDateTimeStr() << ": [ " << p->GetName() << "(" << m_session->GetSecurity() << ") ] Used Command: [ " << fullcmd<< " ] Target: [" << sel_guid.GetString().c_str() << "]";
+                        sIRC.Send_IRC_Channel(logchan,ss.str().c_str(), true, "LOG");
+                    }
                 }
             }
         }

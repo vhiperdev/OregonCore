@@ -31,6 +31,7 @@
 #include "MapManager.h"
 #include "Player.h"
 #include "Util.h"
+#include "../irc/IRCClient.h"
 
 #if PLATFORM != WINDOWS
 #include <readline/readline.h>
@@ -651,6 +652,15 @@ bool ChatHandler::HandleServerSetDiffTimeCommand(const char *args)
 
     sWorld.SetRecordDiffInterval(NewTime);
     printf( "Record diff every %u ms\n", NewTime);
+    return true;
+}
+
+//Reconnect OCChat to IRC server via CLI command
+bool ChatHandler::HandleIRCRelogCommand(const char *args)
+{
+    SendSysMessage("OCChat is dropping from IRC Server");
+    sIRC.ResetIRC();
+    SendSysMessage("OCChat is reconnecting to IRC Server");
     return true;
 }
 

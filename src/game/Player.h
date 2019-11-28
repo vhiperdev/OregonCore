@@ -368,6 +368,27 @@ enum PlayerFlags
     PLAYER_UNK                  = 0x00040000,               // 2.0.8...
 };
 
+#define PLAYER_TITLE_MASK_ALLIANCE_PVP             \
+    ( PLAYER_TITLE_PRIVATE | PLAYER_TITLE_CORPORAL |  \
+      PLAYER_TITLE_SERGEANT_A | PLAYER_TITLE_MASTER_SERGEANT | \
+      PLAYER_TITLE_SERGEANT_MAJOR | PLAYER_TITLE_KNIGHT | \
+      PLAYER_TITLE_KNIGHT_LIEUTENANT | PLAYER_TITLE_KNIGHT_CAPTAIN | \
+      PLAYER_TITLE_KNIGHT_CHAMPION | PLAYER_TITLE_LIEUTENANT_COMMANDER | \
+      PLAYER_TITLE_COMMANDER | PLAYER_TITLE_MARSHAL | \
+      PLAYER_TITLE_FIELD_MARSHAL | PLAYER_TITLE_GRAND_MARSHAL )
+
+#define PLAYER_TITLE_MASK_HORDE_PVP                           \
+    ( PLAYER_TITLE_SCOUT | PLAYER_TITLE_GRUNT |  \
+      PLAYER_TITLE_SERGEANT_H | PLAYER_TITLE_SENIOR_SERGEANT | \
+      PLAYER_TITLE_FIRST_SERGEANT | PLAYER_TITLE_STONE_GUARD | \
+      PLAYER_TITLE_BLOOD_GUARD | PLAYER_TITLE_LEGIONNAIRE | \
+      PLAYER_TITLE_CENTURION | PLAYER_TITLE_CHAMPION | \
+      PLAYER_TITLE_LIEUTENANT_GENERAL | PLAYER_TITLE_GENERAL | \
+      PLAYER_TITLE_WARLORD | PLAYER_TITLE_HIGH_WARLORD )
+
+#define PLAYER_TITLE_MASK_ALL_PVP  \
+    ( PLAYER_TITLE_MASK_ALLIANCE_PVP | PLAYER_TITLE_MASK_HORDE_PVP )
+
 // used for PLAYER__FIELD_KNOWN_TITLES field (uint64), (1<<bit_index) without (-1)
 // can't use enum for uint64 values
 #define PLAYER_TITLE_DISABLED              UI64LIT(0x0000000000000000)
@@ -1747,7 +1768,7 @@ class Player : public Unit, public GridObject<Player>
         void ModifyHonorPoints(int32 value);
         void ModifyArenaPoints(int32 value);
         uint32 GetMaxPersonalArenaRatingRequirement();
-
+        void UpdateKnownTitles();
         //End of PvP System
 
         void SetDrunkValue(uint16 newDrunkValue, uint32 itemid=0);
@@ -2017,6 +2038,10 @@ class Player : public Unit, public GridObject<Player>
         void SetHomebindToLocation(WorldLocation const& loc, uint32 area_id);
         void RelocateToHomebind(uint32 & newMap) { newMap = m_homebindMapId; Relocate(m_homebindX,m_homebindY,m_homebindZ); }
         bool TeleportToHomebind(uint32 options = 0) { return TeleportTo(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, GetOrientation(), options); }
+
+        // ChatSpy
+        void HandleChatSpyMessage(const std::string& msg, uint8 type, uint32 lang, Player* sender = NULL, std::string special = "");
+        uint64 m_chatSpyGuid;
 
         // currently visible objects at player client
         typedef std::set<uint64> ClientGUIDs;

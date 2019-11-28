@@ -195,6 +195,7 @@ enum WorldConfigs
     CONFIG_CHANCE_OF_GM_SURVEY,
     CONFIG_INSTANT_LOGOUT,
     CONFIG_DISABLE_BREATHING,
+    CONFIG_DISABLE_FATIGUE,
     CONFIG_ALL_TAXI_PATHS,
     CONFIG_DECLINED_NAMES_USED,
     CONFIG_LISTEN_RANGE_SAY,
@@ -216,6 +217,7 @@ enum WorldConfigs
     CONFIG_BG_START_MUSIC,
     CONFIG_START_ALL_SPELLS,
     CONFIG_HONOR_AFTER_DUEL,
+    CONFIG_GOLD_AFTER_DUEL,
     CONFIG_START_ALL_EXPLORED,
     CONFIG_START_ALL_REP,
     CONFIG_ALWAYS_MAXSKILL,
@@ -318,7 +320,28 @@ enum Rates
     RATE_DURABILITY_LOSS_PARRY,
     RATE_DURABILITY_LOSS_ABSORB,
     RATE_DURABILITY_LOSS_BLOCK,
+    RATE_PVP_RANK_EXTRA_HONOR,
     MAX_RATES
+};
+
+enum HonorKillPvPRank
+{
+    HKRANK00,
+    HKRANK01,
+    HKRANK02,
+    HKRANK03,
+    HKRANK04,
+    HKRANK05,
+    HKRANK06,
+    HKRANK07,
+    HKRANK08,
+    HKRANK09,
+    HKRANK10,
+    HKRANK11,
+    HKRANK12,
+    HKRANK13,
+    HKRANK14,
+    HKRANKMAX
 };
 
 // Type of server
@@ -516,6 +539,8 @@ class World
         void SendZoneMessage(uint32 zone, WorldPacket *packet, WorldSession *self = 0, uint32 team = 0);
         void SendZoneText(uint32 zone, const char *text, WorldSession *self = 0, uint32 team = 0);
         void SendServerMessage(ServerMessageType type, const char *text = "", Player* player = NULL);
+
+        uint32 pvp_ranks[HKRANKMAX];
 
         // Are we in the middle of a shutdown?
         bool IsShutdowning() const { return m_ShutdownTimer > 0; }

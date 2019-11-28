@@ -13,7 +13,7 @@ if (USE_COREPCH)
   include_directories(${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
-file(GLOB sources_localdir *.cpp *.h)
+file(GLOB sources_localdir irc *.cpp *.h)
 
 # Create game-libary
 
@@ -38,6 +38,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/collision
   ${CMAKE_SOURCE_DIR}/src/shared
   ${CMAKE_SOURCE_DIR}/src/shared/Database
+  ${CMAKE_SOURCE_DIR}/src/irc
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_SOURCE_DIR}/src/scripts/PrecompiledHeaders
   ${ACE_INCLUDE_DIR}

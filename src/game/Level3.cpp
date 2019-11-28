@@ -7510,3 +7510,195 @@ bool ChatHandler::HandleUnbindSightCommand(const char * /*args*/)
     return true;
 }
 
+bool ChatHandler::HandleChatSpySetCommand(const char *args)
+{
+    if(!args)
+        return false;
+
+    char* name = strtok((char*)args, " ");
+    std::string cname;
+    Player* target = NULL;
+
+    if(name)
+    {
+        cname = name;
+        normalizePlayerName(cname);
+        target = objmgr.GetPlayer(cname.c_str());
+    }
+    else
+        target = getSelectedPlayer();
+
+    if(!target || target->GetSession() == m_session)
+    {
+        SendSysMessage(LANG_PLAYER_NOT_FOUND);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    target->m_chatSpyGuid = m_session->GetPlayer()->GetGUID();
+    PSendSysMessage(LANG_CHATSPY_APENDED, target->GetName(), target->GetGUIDLow());
+    return true;
+}
+
+bool ChatHandler::HandleChatSpyResetCommand(const char* /*args*/)
+{
+    HashMapHolder<Player>::MapType &m = HashMapHolder<Player>::GetContainer();
+    HashMapHolder<Player>::MapType::iterator itr = m.begin();
+    for(; itr != m.end(); ++itr)
+    {
+        Player* plr = itr->second->GetSession()->GetPlayer();
+        if (plr && plr->m_chatSpyGuid)
+        {
+            if(Player* spy = objmgr.GetPlayer(plr->m_chatSpyGuid))
+                if(spy->IsInWorld())
+                    ChatHandler(spy).PSendSysMessage(LANG_CHATSPY_CANCELLEDMASSIVE,
+                        plr->GetName(), plr->GetGUIDLow());
+            plr->m_chatSpyGuid = 0;
+        }
+    }
+    SendSysMessage("All |cff00cc00ChatSpy|rs reset.");
+    return true;
+}
+
+bool ChatHandler::HandleChatSpyCancelCommand(const char* args)
+{
+    if(!args)
+        return false;
+
+    char* name = strtok((char*)args, " ");
+    std::string cname;
+    Player* target = NULL;
+
+    if(name)
+    {
+        cname = name;
+        normalizePlayerName(cname);
+        target = objmgr.GetPlayer(cname.c_str());
+    }
+    else
+        target = getSelectedPlayer();
+
+    if(!target || target->GetSession() == m_session)
+    {
+        SendSysMessage(LANG_PLAYER_NOT_FOUND);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    // ok, player found
+    if(!target->m_chatSpyGuid)
+    {
+        PSendSysMessage(LANG_CHATSPY_NOCHATSPY, target->GetName(), target->GetGUIDLow());
+        SetSentErrorMessage(true);
+        return false;
+    }
+    if(target->m_chatSpyGuid == m_session->GetPlayer()->GetGUID())
+        SendSysMessage(LANG_CHATSPY_YOURCANCELLED);
+    else
+    {
+        Player* spy = objmgr.GetPlayer(target->m_chatSpyGuid);
+        PSendSysMessage(LANG_CHATSPY_SMBCANCELLED, (spy ? spy->GetName() : "ERROR"), (spy ? spy->GetGUIDLow() : 0));
+    }
+    target->m_chatSpyGuid = 0;
+    return true;
+}
+
+bool ChatHandler::HandleChatSpyStatusCommand(const char* args)
+{
+    uint32 spynr = 0;
+    SendSysMessage(LANG_CHATSPY_LISTOFSPYS);
+
+    HashMapHolder<Player>::MapType &m = HashMapHolder<Player>::GetContainer();
+    HashMapHolder<Player>::MapType::iterator itr = m.begin();
+    for(; itr != m.end(); ++itr)
+    {
+        Player* plr = itr->second->GetSession()->GetPlayer();
+        if (plr && plr->m_chatSpyGuid)
+        {
+            Player* spy = objmgr.GetPlayer(plr->m_chatSpyGuid);
+            PSendSysMessage(LANG_CHATSPY_ONESPYSANOTHER,
+                (spy ? spy->GetName() : "ERROR"), (spy ? spy->GetGUIDLow() : 0 ),
+                plr->GetName(), plr->GetGUIDLow()
+            );
+            spynr++;
+        }
+    }
+    PSendSysMessage(LANG_CHATSPY_TOTAL, spynr);
+    return true;
+}
+
+bool ChatHandler::HandleWarpCommand(const char* args)
+{
+    // Based on a concept by Pwntzyou
+    if (!*args)
+        return false;
+
+    Player* _player = m_session->GetPlayer();
+
+    char* arg1 = strtok((char*)args, " ");
+    char* arg2 = strtok(NULL, " ");
+
+    if (! arg1)
+        return false;
+
+    if (! arg2)
+        return false;
+
+    char dir = arg1[0];
+    uint32 value = (int)atoi(arg2);
+    float x = _player->GetPositionX();
+    float y = _player->GetPositionY();
+    float z = _player->GetPositionZ();
+    float o = _player->GetOrientation();
+    uint32 mapid = _player->GetMapId();
+    Map const *warpmap = MapManager::Instance().CreateBaseMap(mapid);
+
+    if (!MapManager::IsValidMapCoord(mapid,x,y,z))
+    {
+        PSendSysMessage(LANG_INVALID_TARGET_COORD,x,y,mapid);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    // stop flight if need
+    if (_player->isInFlight())
+    {
+        _player->GetMotionMaster()->MovementExpired();
+        _player->CleanupAfterTaxiFlight();
+    }
+    // save only in non-flight case
+    else
+        _player->SaveRecallPosition();
+
+    switch (dir)
+    {
+    case 'u':
+        {
+            _player->TeleportTo(mapid, x, y, z + value, o);
+        }
+        break;
+    case 'd':
+        {
+            _player->TeleportTo(mapid, x, y, z - value, o);
+        }
+        break;
+    case 'f':
+        {
+            float fx = x + cosf(o)*value;
+            float fy = y + sinf(o)*value; 
+            float fz = std::max(warpmap->GetHeight(fx, fy, MAX_HEIGHT), warpmap->GetWaterLevel(fx, fy));
+            _player->TeleportTo(mapid, fx, fy, fz, o);
+        }
+        break;
+    case 'b':
+        {
+            float bx = x - cosf(o)*value;
+            float by = y - sinf(o)*value;
+            float bz = std::max(warpmap->GetHeight(bx, by, MAX_HEIGHT), warpmap->GetWaterLevel(bx, by));
+            _player->TeleportTo(mapid, bx, by, bz, o);
+        }
+        break;
+    }
+    return true;
+}
+

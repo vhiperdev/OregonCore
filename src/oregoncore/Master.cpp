@@ -35,6 +35,7 @@
 #include "CliRunnable.h"
 #include "RARunnable.h"
 #include "Util.h"
+#include "../irc/IRCClient.h"
 #include "OCSoap.h"
 
 #ifdef _WIN32
@@ -214,6 +215,15 @@ int Master::Run()
     realCurrTime = realPrevTime = getMSTime();
 
     uint32 socketSelecttime = sWorld.getConfig(CONFIG_SOCKET_SELECTTIME);
+
+    // Start up OCChat
+    if (sIRC.Active == 1)
+    {
+        ACE_Based::Thread irc(new IRCClient);
+        irc.setPriority ((ACE_Based::Priority)2);
+    }
+    else
+        sLog.outString("OCChat: OCChat Is Disabled.");
 
     // Start up freeze catcher thread
     ACE_Based::Thread* freeze_thread = NULL;

@@ -22,6 +22,7 @@
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
 #include "Config/Config.h"
+#include "../irc/IRCClient.h"
 
 #include "Log.h"
 #include "Master.h"
