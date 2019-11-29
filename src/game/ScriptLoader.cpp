@@ -34,6 +34,7 @@ void AddSC_npc_rename();
 void AddSC_npc_rentalmount();
 void AddSC_npc_teleport();
 void AddSC_npc_tokens();
+void AddSC_npc_PvPTitles();
 
 //examples
 //void AddSC_custom_example();
@@ -428,6 +429,7 @@ void AddScripts()
     QueryResult_AutoPtr result;
     LoadNpcTele(result);
     AddSC_npc_tokens();
+    AddSC_npc_PvPTitles();
 
 //    AddSC_custom_example();
 //    AddSC_custom_gossip_codebox();
