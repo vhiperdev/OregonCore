@@ -40,48 +40,51 @@ bool verification1Code(Player *pPlayer, Creature *pCreature, const char* sCode)
     return verification1;
 }
 
-bool GossipHello_npc_door_codes(Player *pPlayer, Creature *pCreature)
-{
-    pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, "I know the secret word.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1, "", 0, true);
-    pPlayer->ADD_GOSSIP_ITEM(0, "I do not know the secret word.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
 
-    pPlayer->PlayerTalkClass->SendGossipMenu(91020,pCreature->GetGUID());
-    return true;
-}
 
-bool GossipSelect_npc_door_codes(Player *pPlayer, Creature *pCreature, uint32 sender, uint32 action )
-{
-    if(action == GOSSIP_ACTION_INFO_DEF+2)
-    {
-        pCreature->MonsterWhisper("Sorry, No one comes in without the secret word.", pPlayer->GetGUID());
-        pPlayer->CLOSE_GOSSIP_MENU();
-    }
-    return true;
-}
 
-bool GossipSelectWithCode_npc_door_codes( Player *player, Creature *pCreature, uint32 sender, uint32 action, const char* sCode )
+class npc_door_codes : public CreatureScript
 {
-    if(sender == GOSSIP_SENDER_MAIN)
-    {
-        if(action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            verification1Code(player, pCreature, sCode);
-            player->CLOSE_GOSSIP_MENU();
-            return true;
-        }
-    }
-    return false;
-}
+public:
+	npc_door_codes() : CreatureScript("npc_door_codes") { }
+
+	bool OnGossipHello(Player *pPlayer, Creature *pCreature) override
+	{
+		pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, "I know the secret word.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1, "", 0, true);
+		pPlayer->ADD_GOSSIP_ITEM(0, "I do not know the secret word.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+
+		pPlayer->PlayerTalkClass->SendGossipMenu(91020, pCreature->GetGUID());
+		return true;
+	}
+
+	bool OnGossipSelect(Player *pPlayer, Creature *pCreature, uint32 sender, uint32 action) override
+	{
+		if (action == GOSSIP_ACTION_INFO_DEF + 2)
+		{
+			pCreature->MonsterWhisper("Sorry, No one comes in without the secret word.", pPlayer->GetGUID());
+			pPlayer->CLOSE_GOSSIP_MENU();
+		}
+		return true;
+	}
+
+	bool OnGossipSelectCode(Player *player, Creature *pCreature, uint32 sender, uint32 action, const char* sCode) override
+	{
+		if (sender == GOSSIP_SENDER_MAIN)
+		{
+			if (action == GOSSIP_ACTION_INFO_DEF + 1)
+			{
+				verification1Code(player, pCreature, sCode);
+				player->CLOSE_GOSSIP_MENU();
+				return true;
+			}
+		}
+		return false;
+	}
+};
 
 void AddSC_npc_door_codes()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name="npc_door_codes";
-    newscript->pGossipHello =           &GossipHello_npc_door_codes;
-    newscript->pGossipSelect =          &GossipSelect_npc_door_codes;
-    newscript->pGossipSelectWithCode =  &GossipSelectWithCode_npc_door_codes;
-    newscript->RegisterSelf();
+    new npc_door_codes();
     
 }
 

@@ -168,61 +168,63 @@ bool checkCode(Player *player, Creature *_Creature, const char* sCode)
     return check;
 }
 
-//This function is called when the player opens the gossip menubool
-bool GossipHello_npc_codebox(Player *player, Creature *_Creature)
+
+
+class npc_codebox : public CreatureScript
 {
-    int32 text_id = C_GOSSIP_MENU;
-    
-    extern DatabaseType WorldDatabase;
-    uint32 creatureID = _Creature->GetEntry();
+public:
+	npc_codebox() : CreatureScript("npc_codebox") { }
 
-    QueryResult_AutoPtr result = WorldDatabase.PQuery("SELECT `npc_text_id` FROM `npc_codes_text` WHERE npc_id = %i LIMIT 1",creatureID);
-    if(result)
-    {
-        Field *fields = result->Fetch();
-        text_id = fields[0].GetInt32();
-    }
+	//This function is called when the player opens the gossip menubool
+	bool OnGossipHello(Player *player, Creature *_Creature) override
+	{
+		int32 text_id = C_GOSSIP_MENU;
 
-    player->ADD_GOSSIP_ITEM_EXTENDED(0, D_ENTER_CODE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1, "", 0, true);
-    player->ADD_GOSSIP_ITEM(0, D_CANCEL_CODE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+		extern DatabaseType WorldDatabase;
+		uint32 creatureID = _Creature->GetEntry();
 
-    player->PlayerTalkClass->SendGossipMenu(text_id,_Creature->GetGUID());
-    return true;
-}
+		QueryResult_AutoPtr result = WorldDatabase.PQuery("SELECT `npc_text_id` FROM `npc_codes_text` WHERE npc_id = %i LIMIT 1", creatureID);
+		if (result)
+		{
+			Field *fields = result->Fetch();
+			text_id = fields[0].GetInt32();
+		}
 
-//This function is called when the player clicks an option on the gossip menubool
-bool GossipSelect_npc_codebox(Player *player, Creature *_Creature, uint32 sender, uint32 action )
-{
-    if(action == GOSSIP_ACTION_INFO_DEF+2)
-    {
-        _Creature->MonsterSay(SAY_GOODBYE, LANG_UNIVERSAL, NULL); 
-        player->CLOSE_GOSSIP_MENU();
-    }
-    return true;
-}
+		player->ADD_GOSSIP_ITEM_EXTENDED(0, D_ENTER_CODE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1, "", 0, true);
+		player->ADD_GOSSIP_ITEM(0, D_CANCEL_CODE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
 
-bool GossipSelectWithCode_npc_codebox( Player *player, Creature *_Creature, uint32 sender, uint32 action, const char* sCode )
-{
-    if(sender == GOSSIP_SENDER_MAIN)
-    {
-        if(action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            checkCode(player, _Creature, sCode);
-            player->CLOSE_GOSSIP_MENU();
-            return true;
-        }
-    }
-    return false;
-}
+		player->PlayerTalkClass->SendGossipMenu(text_id, _Creature->GetGUID());
+		return true;
+	}
+
+	//This function is called when the player clicks an option on the gossip menubool
+	bool OnGossipSelect(Player *player, Creature *_Creature, uint32 sender, uint32 action) override
+	{
+		if (action == GOSSIP_ACTION_INFO_DEF + 2)
+		{
+			_Creature->MonsterSay(SAY_GOODBYE, LANG_UNIVERSAL, NULL);
+			player->CLOSE_GOSSIP_MENU();
+		}
+		return true;
+	}
+
+	bool OnGossipSelectCode(Player *player, Creature *_Creature, uint32 sender, uint32 action, const char* sCode) override
+	{
+		if (sender == GOSSIP_SENDER_MAIN)
+		{
+			if (action == GOSSIP_ACTION_INFO_DEF + 1)
+			{
+				checkCode(player, _Creature, sCode);
+				player->CLOSE_GOSSIP_MENU();
+				return true;
+			}
+		}
+		return false;
+	}
+};
 
 void AddSC_npc_codebox()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name="npc_codebox";
-    newscript->pGossipHello =           &GossipHello_npc_codebox;
-    newscript->pGossipSelect =          &GossipSelect_npc_codebox;
-    newscript->pGossipSelectWithCode =  &GossipSelectWithCode_npc_codebox;
-    newscript->RegisterSelf();
+    new npc_codebox();
 }
 

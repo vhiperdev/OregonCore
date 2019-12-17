@@ -139,82 +139,83 @@ namespace
     }
 }
 
-bool GossipHello_npc_teleport(Player *player, Creature *creature)
+
+
+class npc_teleport : public CreatureScript
 {
-    PageC(player) = PageD(player) = Cat(player) = 0;
+public:
+	npc_teleport() : CreatureScript("npc_teleport") { }
 
-    if(player->IsInCombat())
-    {
-        player->CLOSE_GOSSIP_MENU();
-        creature->MonsterWhisper("You are in combat!", player->GetGUID());
-        return true;
-    }
-    AffichCat(player, creature);
-    return true;
-}
+	bool OnGossipHello(Player *player, Creature *creature) override
+	{
+		PageC(player) = PageD(player) = Cat(player) = 0;
 
-bool GossipSelect_npc_teleport(Player *player, Creature *creature, uint32 sender, uint32 param)
-{
-    switch(sender) 
-    {
-      // Display destinations
-      case GOSSIP_SHOW_DEST:
-        Cat(player) = param;
-        AffichDest(player, creature);
-        break;
+		if (player->IsInCombat())
+		{
+			player->CLOSE_GOSSIP_MENU();
+			creature->MonsterWhisper("You are in combat!", player->GetGUID());
+			return true;
+		}
+		AffichCat(player, creature);
+		return true;
+	}
 
-      // Previous categories page
-      case GOSSIP_PREV_PAGEC:
-        --PageC(player);
-        AffichCat(player, creature);
-        break;
+	bool OnGossipSelect(Player *player, Creature *creature, uint32 sender, uint32 param) override
+	{
+		switch (sender)
+		{
+			// Display destinations
+		case GOSSIP_SHOW_DEST:
+			Cat(player) = param;
+			AffichDest(player, creature);
+			break;
 
-      // Next page categories
-      case GOSSIP_NEXT_PAGEC:
-        ++PageC(player);
-        AffichCat(player, creature);
-        break;
+			// Previous categories page
+		case GOSSIP_PREV_PAGEC:
+			--PageC(player);
+			AffichCat(player, creature);
+			break;
 
-      // Previous destinations page
-      case GOSSIP_PREV_PAGED:
-        --PageD(player);
-        AffichDest(player, creature);
-        break;
+			// Next page categories
+		case GOSSIP_NEXT_PAGEC:
+			++PageC(player);
+			AffichCat(player, creature);
+			break;
 
-      // Next destination page
-      case GOSSIP_NEXT_PAGED:
-        ++PageD(player);
-        AffichDest(player, creature);
-        break;
+			// Previous destinations page
+		case GOSSIP_PREV_PAGED:
+			--PageD(player);
+			AffichDest(player, creature);
+			break;
 
-      // Display main menu
-      case GOSSIP_MAIN_MENU:
-        GossipHello_npc_teleport(player, creature);
-        break;
+			// Next destination page
+		case GOSSIP_NEXT_PAGED:
+			++PageD(player);
+			AffichDest(player, creature);
+			break;
 
-      // Teleportation
-      case GOSSIP_TELEPORT:
-        player->CLOSE_GOSSIP_MENU();
-        if(player->HasAura(SPELL_PASSIVE_RESURRECTION_SICKNESS,0)) {
-            creature->CastSpell(player,38588,false); // Healing effect
-            player->RemoveAurasDueToSpell(SPELL_PASSIVE_RESURRECTION_SICKNESS);
-        }
+			// Display main menu
+		case GOSSIP_MAIN_MENU:
+			OnGossipHello(player, creature);
+			break;
 
-        ActionTeleport(player, creature, param);
-        break;
-    }
-    return true;
-}
+			// Teleportation
+		case GOSSIP_TELEPORT:
+			player->CLOSE_GOSSIP_MENU();
+			if (player->HasAura(SPELL_PASSIVE_RESURRECTION_SICKNESS, 0)) {
+				creature->CastSpell(player, 38588, false); // Healing effect
+				player->RemoveAurasDueToSpell(SPELL_PASSIVE_RESURRECTION_SICKNESS);
+			}
 
+			ActionTeleport(player, creature, param);
+			break;
+		}
+		return true;
+	}
+};
 
 void AddSC_npc_teleport()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name="npc_teleport";
-    newscript->pGossipHello =  &GossipHello_npc_teleport;
-    newscript->pGossipSelect = &GossipSelect_npc_teleport;
-    newscript->RegisterSelf();
+    new npc_teleport();
 }
 

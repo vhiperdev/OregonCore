@@ -231,108 +231,111 @@ void sellGuildhouse(Player *player, Creature *_creature)
     }
 }
 
-bool GossipHello_npc_guildmaster(Player *player, Creature *_creature)
+
+class npc_guildmaster : public CreatureScript
 {
-    player->ADD_GOSSIP_ITEM(ICON_GOSSIP_BALOON, MSG_GOSSIP_TELE, 
-        GOSSIP_SENDER_MAIN, ACTION_TELE);
+public:
+	npc_guildmaster() : CreatureScript("npc_guildmaster") { }
 
-    if (isPlayerGuildLeader(player))
-    {
-        uint8 buyEnabled = sConfig.GetIntDefault("GuildMasterNPC.BuyEnabled", 1);
-        if ( buyEnabled == 1 )
-        {
-            //show additional menu for guild leader
-            std::string buyGHGossip = sConfig.GetStringDefault("GuildMasterNPC.BuyGossip", "Buy a Guild House for 500 Gold");
-            player->ADD_GOSSIP_ITEM(ICON_GOSSIP_GOLD, buyGHGossip,
-                GOSSIP_SENDER_MAIN, ACTION_SHOW_BUYLIST);
-        }
-        if (isPlayerHasGuildhouse(player, _creature))
-        {
-            uint8 sellEnabled = sConfig.GetIntDefault("GuildMasterNPC.SellEnabled", 1);
-            if ( sellEnabled == 1 )
-            {
-                //and additional for guildhouse owner
-                std::string sellGHGossip = sConfig.GetStringDefault("GuildMasterNPC.SellGossip", "Sell your Guild House for 400 Gold");
-                player->PlayerTalkClass->GetGossipMenu().AddMenuItem(ICON_GOSSIP_GOLD, sellGHGossip, GOSSIP_SENDER_MAIN, ACTION_SELL_GUILDHOUSE, MSG_CODEBOX_SELL, 0, true);
-            }
-        }
-    }
-    player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, _creature->GetGUID());
-    return true;
-}
+	bool OnGossipHello(Player *player, Creature *_creature) override
+	{
+		player->ADD_GOSSIP_ITEM(ICON_GOSSIP_BALOON, MSG_GOSSIP_TELE,
+			GOSSIP_SENDER_MAIN, ACTION_TELE);
+
+		if (isPlayerGuildLeader(player))
+		{
+			uint8 buyEnabled = sConfig.GetIntDefault("GuildMasterNPC.BuyEnabled", 1);
+			if (buyEnabled == 1)
+			{
+				//show additional menu for guild leader
+				std::string buyGHGossip = sConfig.GetStringDefault("GuildMasterNPC.BuyGossip", "Buy a Guild House for 500 Gold");
+				player->ADD_GOSSIP_ITEM(ICON_GOSSIP_GOLD, buyGHGossip,
+					GOSSIP_SENDER_MAIN, ACTION_SHOW_BUYLIST);
+			}
+			if (isPlayerHasGuildhouse(player, _creature))
+			{
+				uint8 sellEnabled = sConfig.GetIntDefault("GuildMasterNPC.SellEnabled", 1);
+				if (sellEnabled == 1)
+				{
+					//and additional for guildhouse owner
+					std::string sellGHGossip = sConfig.GetStringDefault("GuildMasterNPC.SellGossip", "Sell your Guild House for 400 Gold");
+					player->PlayerTalkClass->GetGossipMenu().AddMenuItem(ICON_GOSSIP_GOLD, sellGHGossip, GOSSIP_SENDER_MAIN, ACTION_SELL_GUILDHOUSE, MSG_CODEBOX_SELL, 0, true);
+				}
+			}
+		}
+		player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, _creature->GetGUID());
+		return true;
+	}
 
 
-bool GossipSelect_npc_guildmaster(Player *player, Creature *_creature, uint32 sender, uint32 action )
-{
-    if (sender != GOSSIP_SENDER_MAIN)
-        return false;
+	bool OnGossipSelect(Player *player, Creature *_creature, uint32 sender, uint32 action) override
+	{
+		if (sender != GOSSIP_SENDER_MAIN)
+			return false;
 
-    switch (action)
-    {
-        case ACTION_TELE:
-            //teleport player to GH
-            player->CLOSE_GOSSIP_MENU();
-            teleportPlayerToGuildHouse(player, _creature);
-            break;
-        case ACTION_SHOW_BUYLIST:
-            //show list of GHs which currently not occupied
-            showBuyList(player, _creature);
-            break;
-        default:
-            if (action > OFFSET_SHOWBUY_FROM)
-            {
-                showBuyList(player, _creature, action - OFFSET_SHOWBUY_FROM);
-            } else if (action > OFFSET_GH_ID_TO_ACTION)
-            {
-                //player clicked on buy list
-                player->CLOSE_GOSSIP_MENU();
-                //get guildhouseId from action
-                //guildhouseId = action - OFFSET_GH_ID_TO_ACTION
-                buyGuildhouse(player, _creature, action - OFFSET_GH_ID_TO_ACTION);
-            }
-            break;
-    }
-    
-    return true;
-}
+		switch (action)
+		{
+		case ACTION_TELE:
+			//teleport player to GH
+			player->CLOSE_GOSSIP_MENU();
+			teleportPlayerToGuildHouse(player, _creature);
+			break;
+		case ACTION_SHOW_BUYLIST:
+			//show list of GHs which currently not occupied
+			showBuyList(player, _creature);
+			break;
+		default:
+			if (action > OFFSET_SHOWBUY_FROM)
+			{
+				showBuyList(player, _creature, action - OFFSET_SHOWBUY_FROM);
+			}
+			else if (action > OFFSET_GH_ID_TO_ACTION)
+			{
+				//player clicked on buy list
+				player->CLOSE_GOSSIP_MENU();
+				//get guildhouseId from action
+				//guildhouseId = action - OFFSET_GH_ID_TO_ACTION
+				buyGuildhouse(player, _creature, action - OFFSET_GH_ID_TO_ACTION);
+			}
+			break;
+		}
 
-bool GossipSelectWithCode_npc_guildmaster( Player *player, Creature *_creature,
-                                      uint32 sender, uint32 action, const char* sCode )
-{
-    if(sender == GOSSIP_SENDER_MAIN)
-    {
-        if(action == ACTION_SELL_GUILDHOUSE)
-        {
-            int i = -1;
-            try
-            {
-                //compare code
-                if (strlen(sCode) + 1 == sizeof CODE_SELL)
-                    i = strcmp(CODE_SELL, sCode);
+		return true;
+	}
 
-            } catch(char *str) {error_db_log(str);}
+	bool OnGossipSelectCode(Player *player, Creature *_creature,
+		uint32 sender, uint32 action, const char* sCode) override
+	{
+		if (sender == GOSSIP_SENDER_MAIN)
+		{
+			if (action == ACTION_SELL_GUILDHOUSE)
+			{
+				int i = -1;
+				try
+				{
+					//compare code
+					if (strlen(sCode) + 1 == sizeof CODE_SELL)
+						i = strcmp(CODE_SELL, sCode);
 
-            if (i == 0)
-            {
-                //right code
-                sellGuildhouse(player, _creature);
-            }
-            player->CLOSE_GOSSIP_MENU();
-            return true;
-        }
-    }
-    return false;
-}
+				}
+				catch (char *str) { error_db_log(str); }
 
+				if (i == 0)
+				{
+					//right code
+					sellGuildhouse(player, _creature);
+				}
+				player->CLOSE_GOSSIP_MENU();
+				return true;
+			}
+		}
+		return false;
+	}
+
+};
 
 void AddSC_npc_guildmaster()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "npc_guildmaster";
-    newscript->pGossipHello = &GossipHello_npc_guildmaster;
-    newscript->pGossipSelect = &GossipSelect_npc_guildmaster;
-    newscript->pGossipSelectWithCode =  &GossipSelectWithCode_npc_guildmaster;
-    newscript->RegisterSelf();
+    new npc_guildmaster();
 }
 
