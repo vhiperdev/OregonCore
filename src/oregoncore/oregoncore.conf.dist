@@ -2253,3 +2253,48 @@ Eluna.ScriptPath = "lua_scripts"
 WarsongTimer.Enabled = 0
 CreateUpdateFile.Enabled = 0
 Console.RestartTimer = 10
+
+###############################################################################
+#  ANTICHEAT
+#
+#     Anticheat.Enable
+#        Description: Enables or disables the Anticheat System functionality
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+#
+#     Anticheat.ReportsForIngameWarnings
+#        Description: How many reports the player must have to notify to GameMasters ingame when he generates a new report.
+#        Default:     70
+#
+#     Anticheat.DetectionsEnabled
+#        Description: It represents which detections are enabled.
+#
+#        SPEED_HACK_DETECTION            = 1
+#        FLY_HACK_DETECTION              = 2
+#        WALK_WATER_HACK_DETECTION       = 4
+#        JUMP_HACK_DETECTION             = 8
+#        TELEPORT_PLANE_HACK_DETECTION   = 16
+#        CLIMB_HACK_DETECTION            = 32
+#
+#        Default:     31
+#
+#     Anticheat.MaxReportsForDailyReport
+#        Description: How many reports must the player have to make a report that it is in DB for a day (not only during the player's session).
+#        Default:     70
+#
+#	Anticheat.KickEnable
+#		Description: If ReportsForIngameWarnings Then Kick cheater!
+#		Default:	0 (Disabled)
+#					1 (Enabled)
+#
+#	Anticheat.BanEnable
+#		Description: If the kick is not included, the ban will not work
+#		Default:	0 (Disabled)
+#					1 (Enabled)
+###############################################################################
+Anticheat.Enable = 1
+Anticheat.ReportsForIngameWarnings = 70
+Anticheat.DetectionsEnabled = 31
+Anticheat.MaxReportsForDailyReport = 70
+Anticheat.KickEnable = 1
+Anticheat.BanEnable = 1
