@@ -23,13 +23,12 @@ We have also a [forum][6], this is a place for developers to hang out and discus
 
 If you have found a bug you may report it on our bugtracker, issues must include revision hash and as many details as possible to aide us in resolving it as quickly as possible.
 
-[1]: https://travis-ci.org/talamortis/OregonCore.svg?branch=master
+[1]: https://travis-ci.org/coolzoom/OregonCore.svg?branch=Eluna%26CFBG%26Patch
 [2]: https://ci.appveyor.com/api/projects/status/bxn9cq9miqxn33gr/branch/master
 [3]: https://wiki.oregon-core.net/
 [4]: https://docs.oregon-core.net/
 [5]: https://discord.gg/Nyc3fTy
 [6]: https://forums.oregon-core.net/
-[7]: https://travis-ci.org/talamortis/OregonCore
+[7]: https://travis-ci.org/coolzoom/OregonCore
 [8]: https://ci.appveyor.com/project/OregonCore/OregonCore/branch/master
-
 
