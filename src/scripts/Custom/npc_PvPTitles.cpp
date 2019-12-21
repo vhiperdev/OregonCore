@@ -78,304 +78,305 @@ uint32 GetTotalKill(Player* player)
 	return NULL;
 }
 
-bool OnGossipHello_PvPTitles(Player* player, Creature* creature)
+
+
+class npc_PvPTitles : public CreatureScript
 {
-	player->PlayerTalkClass->ClearMenus();
-	player->ADD_GOSSIP_ITEM(10, "PVP Titles", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-	player->ADD_GOSSIP_ITEM(0, "Nevermind..", GOSSIP_SENDER_MAIN, 5000);
-	player->PlayerTalkClass->SendGossipMenu(8, creature->GetGUID());
-	return true;
-}
+public:
+	npc_PvPTitles() : CreatureScript("npc_PvPTitles") { }
 
-bool OnGossipSelect_PvPTitles(Player* Player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
-{
-	switch (uiAction)
+	bool OnGossipHello(Player* player, Creature* creature) override
 	{
-	case GOSSIP_ACTION_INFO_DEF + 1:
+		player->PlayerTalkClass->ClearMenus();
+		player->ADD_GOSSIP_ITEM(10, "PVP Titles", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+		player->ADD_GOSSIP_ITEM(0, "Nevermind..", GOSSIP_SENDER_MAIN, 5000);
+		player->PlayerTalkClass->SendGossipMenu(8, creature->GetGUID());
+		return true;
+	}
+
+	bool OnGossipSelect(Player* Player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction) override
 	{
-		if (Player->GetTeam() == ALLIANCE)
+		switch (uiAction)
 		{
-			Player->PlayerTalkClass->ClearMenus();
-			Player->ADD_GOSSIP_ITEM(4, "Private", GOSSIP_SENDER_MAIN, PRIVATE);
-			Player->ADD_GOSSIP_ITEM(4, "Corporal", GOSSIP_SENDER_MAIN, CORPORAL);
-			Player->ADD_GOSSIP_ITEM(4, "Sergeant", GOSSIP_SENDER_MAIN, SERGEANT);
-			Player->ADD_GOSSIP_ITEM(4, "Master Sergeant", GOSSIP_SENDER_MAIN, MASTER_SERGEANT);
-			Player->ADD_GOSSIP_ITEM(4, "Sergeant Major", GOSSIP_SENDER_MAIN, SERGEANT_MAJOR);
-			Player->ADD_GOSSIP_ITEM(4, "Knight", GOSSIP_SENDER_MAIN, KNIGHT);
-			Player->ADD_GOSSIP_ITEM(4, "Knight Lieutenant", GOSSIP_SENDER_MAIN, KNIGHT_LIEUTENANT);
-			Player->ADD_GOSSIP_ITEM(4, "Knight Captain", GOSSIP_SENDER_MAIN, KNIGHT_CAPTAIN);
-			Player->ADD_GOSSIP_ITEM(4, "Knight Champion", GOSSIP_SENDER_MAIN, KNIGHT_CHAMPION);
-			Player->ADD_GOSSIP_ITEM(4, "Lieutenant Commander", GOSSIP_SENDER_MAIN, LIEUTENANT_COMMANDER);
-			Player->ADD_GOSSIP_ITEM(4, "Commander.", GOSSIP_SENDER_MAIN, COMMANDER);
-			Player->ADD_GOSSIP_ITEM(4, "Marshal", GOSSIP_SENDER_MAIN, MARSHAL);
-			Player->ADD_GOSSIP_ITEM(4, "Field Marshal", GOSSIP_SENDER_MAIN, FIELD_MARSHAL);
-			Player->ADD_GOSSIP_ITEM(4, "Grand Marshal", GOSSIP_SENDER_MAIN, GRAND_MARSHAL);
-			Player->ADD_GOSSIP_ITEM(0, "Nevermind..", GOSSIP_SENDER_MAIN, 1000);
-			Player->PlayerTalkClass->SendGossipMenu(9, creature->GetGUID());
-		}
-		else
+		case GOSSIP_ACTION_INFO_DEF + 1:
 		{
-			Player->PlayerTalkClass->ClearMenus();
-			Player->ADD_GOSSIP_ITEM(4, "Scout", GOSSIP_SENDER_MAIN, SCOUT);
-			Player->ADD_GOSSIP_ITEM(4, "Grunt", GOSSIP_SENDER_MAIN, GRUNT);
-			Player->ADD_GOSSIP_ITEM(4, "Sergeant", GOSSIP_SENDER_MAIN, SERGEANT_H);
-			Player->ADD_GOSSIP_ITEM(4, "Senior Sergeant", GOSSIP_SENDER_MAIN, SENIOR_SERGEANT);
-			Player->ADD_GOSSIP_ITEM(4, "First Sergeant", GOSSIP_SENDER_MAIN, FIRST_SERGEANT);
-			Player->ADD_GOSSIP_ITEM(4, "Stone Guard", GOSSIP_SENDER_MAIN, STONE_GUARD);
-			Player->ADD_GOSSIP_ITEM(4, "Blood Guard", GOSSIP_SENDER_MAIN, BLOOD_GUARD);
-			Player->ADD_GOSSIP_ITEM(4, "Legionnaire", GOSSIP_SENDER_MAIN, LEGIONNAIRE);
-			Player->ADD_GOSSIP_ITEM(4, "Centurion", GOSSIP_SENDER_MAIN, CENTURION);
-			Player->ADD_GOSSIP_ITEM(4, "Champion", GOSSIP_SENDER_MAIN, CHAMPION);
-			Player->ADD_GOSSIP_ITEM(4, "Lieutenant General", GOSSIP_SENDER_MAIN, LIEUTENANT_GENERAL);
-			Player->ADD_GOSSIP_ITEM(4, "General", GOSSIP_SENDER_MAIN, GENERAL);
-			Player->ADD_GOSSIP_ITEM(4, "Warlord", GOSSIP_SENDER_MAIN, WARLORD);
-			Player->ADD_GOSSIP_ITEM(4, "High Warlord", GOSSIP_SENDER_MAIN, HIGH_WARLORD);
-			Player->ADD_GOSSIP_ITEM(0, "Nevermind..", GOSSIP_SENDER_MAIN, 1000);
-			Player->PlayerTalkClass->SendGossipMenu(9, creature->GetGUID());
+			if (Player->GetTeam() == ALLIANCE)
+			{
+				Player->PlayerTalkClass->ClearMenus();
+				Player->ADD_GOSSIP_ITEM(4, "Private", GOSSIP_SENDER_MAIN, PRIVATE);
+				Player->ADD_GOSSIP_ITEM(4, "Corporal", GOSSIP_SENDER_MAIN, CORPORAL);
+				Player->ADD_GOSSIP_ITEM(4, "Sergeant", GOSSIP_SENDER_MAIN, SERGEANT);
+				Player->ADD_GOSSIP_ITEM(4, "Master Sergeant", GOSSIP_SENDER_MAIN, MASTER_SERGEANT);
+				Player->ADD_GOSSIP_ITEM(4, "Sergeant Major", GOSSIP_SENDER_MAIN, SERGEANT_MAJOR);
+				Player->ADD_GOSSIP_ITEM(4, "Knight", GOSSIP_SENDER_MAIN, KNIGHT);
+				Player->ADD_GOSSIP_ITEM(4, "Knight Lieutenant", GOSSIP_SENDER_MAIN, KNIGHT_LIEUTENANT);
+				Player->ADD_GOSSIP_ITEM(4, "Knight Captain", GOSSIP_SENDER_MAIN, KNIGHT_CAPTAIN);
+				Player->ADD_GOSSIP_ITEM(4, "Knight Champion", GOSSIP_SENDER_MAIN, KNIGHT_CHAMPION);
+				Player->ADD_GOSSIP_ITEM(4, "Lieutenant Commander", GOSSIP_SENDER_MAIN, LIEUTENANT_COMMANDER);
+				Player->ADD_GOSSIP_ITEM(4, "Commander.", GOSSIP_SENDER_MAIN, COMMANDER);
+				Player->ADD_GOSSIP_ITEM(4, "Marshal", GOSSIP_SENDER_MAIN, MARSHAL);
+				Player->ADD_GOSSIP_ITEM(4, "Field Marshal", GOSSIP_SENDER_MAIN, FIELD_MARSHAL);
+				Player->ADD_GOSSIP_ITEM(4, "Grand Marshal", GOSSIP_SENDER_MAIN, GRAND_MARSHAL);
+				Player->ADD_GOSSIP_ITEM(0, "Nevermind..", GOSSIP_SENDER_MAIN, 1000);
+				Player->PlayerTalkClass->SendGossipMenu(9, creature->GetGUID());
+			}
+			else
+			{
+				Player->PlayerTalkClass->ClearMenus();
+				Player->ADD_GOSSIP_ITEM(4, "Scout", GOSSIP_SENDER_MAIN, SCOUT);
+				Player->ADD_GOSSIP_ITEM(4, "Grunt", GOSSIP_SENDER_MAIN, GRUNT);
+				Player->ADD_GOSSIP_ITEM(4, "Sergeant", GOSSIP_SENDER_MAIN, SERGEANT_H);
+				Player->ADD_GOSSIP_ITEM(4, "Senior Sergeant", GOSSIP_SENDER_MAIN, SENIOR_SERGEANT);
+				Player->ADD_GOSSIP_ITEM(4, "First Sergeant", GOSSIP_SENDER_MAIN, FIRST_SERGEANT);
+				Player->ADD_GOSSIP_ITEM(4, "Stone Guard", GOSSIP_SENDER_MAIN, STONE_GUARD);
+				Player->ADD_GOSSIP_ITEM(4, "Blood Guard", GOSSIP_SENDER_MAIN, BLOOD_GUARD);
+				Player->ADD_GOSSIP_ITEM(4, "Legionnaire", GOSSIP_SENDER_MAIN, LEGIONNAIRE);
+				Player->ADD_GOSSIP_ITEM(4, "Centurion", GOSSIP_SENDER_MAIN, CENTURION);
+				Player->ADD_GOSSIP_ITEM(4, "Champion", GOSSIP_SENDER_MAIN, CHAMPION);
+				Player->ADD_GOSSIP_ITEM(4, "Lieutenant General", GOSSIP_SENDER_MAIN, LIEUTENANT_GENERAL);
+				Player->ADD_GOSSIP_ITEM(4, "General", GOSSIP_SENDER_MAIN, GENERAL);
+				Player->ADD_GOSSIP_ITEM(4, "Warlord", GOSSIP_SENDER_MAIN, WARLORD);
+				Player->ADD_GOSSIP_ITEM(4, "High Warlord", GOSSIP_SENDER_MAIN, HIGH_WARLORD);
+				Player->ADD_GOSSIP_ITEM(0, "Nevermind..", GOSSIP_SENDER_MAIN, 1000);
+				Player->PlayerTalkClass->SendGossipMenu(9, creature->GetGUID());
+			}
+			Player->PlayerTalkClass->SendGossipMenu(9425, creature->GetGUID());
+		}break;
+
+		case PRIVATE:
+		{
+			if (GetTotalKill(Player) >= KILLS_1)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(1));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
+		}break;
+
+		case CORPORAL:
+		{
+			if (GetTotalKill(Player) >= KILLS_2)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(2));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
 		}
-		Player->PlayerTalkClass->SendGossipMenu(9425, creature->GetGUID());
-	}break;
-
-	case PRIVATE:
-	{
-		if (GetTotalKill(Player) >= KILLS_1)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(1));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}break;
-
-	case CORPORAL:
-	{
-		if (GetTotalKill(Player) >= KILLS_2)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(2));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}
-	break;
-	case SERGEANT:
-	{
-		if (GetTotalKill(Player) >= KILLS_3)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(3));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}
-	break;
-	case MASTER_SERGEANT:
-	{
-		if (GetTotalKill(Player) >= KILLS_4)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(4));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}
-	break;
-	case SERGEANT_MAJOR:
-	{
-		if (GetTotalKill(Player) >= KILLS_5)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(5));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}
-	break;
-	case KNIGHT:
-	{
-		if (GetTotalKill(Player) >= KILLS_6)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(6));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}
-	break;
-	case KNIGHT_LIEUTENANT:
-	{
-		if (GetTotalKill(Player) >= KILLS_7)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(7));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}
-	break;
-	case KNIGHT_CAPTAIN:
-	{
-		if (GetTotalKill(Player) >= KILLS_8)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(8));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}
-	break;
-	case KNIGHT_CHAMPION:
-	{
-		if (GetTotalKill(Player) >= KILLS_9)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(9));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}
-	break;
-	case LIEUTENANT_COMMANDER:
-	{
-		if (GetTotalKill(Player) >= KILLS_10)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(10));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}
-	break;
-	case COMMANDER:
-	{
-		if (GetTotalKill(Player) >= KILLS_11)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(11));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}
-	break;
-	case MARSHAL:
-	{
-		if (GetTotalKill(Player) >= KILLS_12)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(12));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}
-	break;
-	case FIELD_MARSHAL:
-	{
-		if (GetTotalKill(Player) >= KILLS_13)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(13));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}
-	break;
-	case GRAND_MARSHAL:
-	{
-		if (GetTotalKill(Player) >= KILLS_14)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(14));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}
-	break;
-	case SCOUT:
-	{
-		if (GetTotalKill(Player) >= KILLS_1)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(15));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}
-	break;
-	case GRUNT:
-	{
-		if (GetTotalKill(Player) >= KILLS_2)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(16));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}
-	break;
-	case SERGEANT_H:
-	{
-		if (GetTotalKill(Player) >= KILLS_3)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(17));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}
-	break;
-	case SENIOR_SERGEANT:
-	{
-		if (GetTotalKill(Player) >= KILLS_4)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(18));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}
-	break;
-	case FIRST_SERGEANT:
-	{
-		if (GetTotalKill(Player) >= KILLS_5)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(19));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}
-	break;
-	case STONE_GUARD:
-	{
-		if (GetTotalKill(Player) >= KILLS_6)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(20));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}
-	break;
-	case BLOOD_GUARD:
-	{
-		if (GetTotalKill(Player) >= KILLS_7)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(21));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}
-	break;
-	case LEGIONNAIRE:
-	{
-		if (GetTotalKill(Player) >= KILLS_8)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(22));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}
-	break;
-	case CENTURION:
-	{
-		if (GetTotalKill(Player) >= KILLS_9)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(23));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}
-	break;
-	case CHAMPION:
-	{
-		if (GetTotalKill(Player) >= KILLS_10)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(24));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}
-	break;
-	case LIEUTENANT_GENERAL:
-	{
-		if (GetTotalKill(Player) >= KILLS_11)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(25));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}
-	break;
-	case GENERAL:
-	{
-		if (GetTotalKill(Player) >= KILLS_12)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(26));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}
-	break;
-	case WARLORD:
-	{
-		if (GetTotalKill(Player) >= KILLS_13)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(27));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}
-	break;
-	case HIGH_WARLORD:
-	{
-		if (GetTotalKill(Player) >= KILLS_14)
-			Player->SetTitle(sCharTitlesStore.LookupEntry(28));
-		else
-			Player->GetSession()->SendNotification("You dont have enough kills");
-	}
-	break;
-	Player->PlayerTalkClass->CloseGossip();
-
-	case 1000:
+		break;
+		case SERGEANT:
+		{
+			if (GetTotalKill(Player) >= KILLS_3)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(3));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
+		}
+		break;
+		case MASTER_SERGEANT:
+		{
+			if (GetTotalKill(Player) >= KILLS_4)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(4));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
+		}
+		break;
+		case SERGEANT_MAJOR:
+		{
+			if (GetTotalKill(Player) >= KILLS_5)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(5));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
+		}
+		break;
+		case KNIGHT:
+		{
+			if (GetTotalKill(Player) >= KILLS_6)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(6));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
+		}
+		break;
+		case KNIGHT_LIEUTENANT:
+		{
+			if (GetTotalKill(Player) >= KILLS_7)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(7));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
+		}
+		break;
+		case KNIGHT_CAPTAIN:
+		{
+			if (GetTotalKill(Player) >= KILLS_8)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(8));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
+		}
+		break;
+		case KNIGHT_CHAMPION:
+		{
+			if (GetTotalKill(Player) >= KILLS_9)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(9));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
+		}
+		break;
+		case LIEUTENANT_COMMANDER:
+		{
+			if (GetTotalKill(Player) >= KILLS_10)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(10));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
+		}
+		break;
+		case COMMANDER:
+		{
+			if (GetTotalKill(Player) >= KILLS_11)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(11));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
+		}
+		break;
+		case MARSHAL:
+		{
+			if (GetTotalKill(Player) >= KILLS_12)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(12));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
+		}
+		break;
+		case FIELD_MARSHAL:
+		{
+			if (GetTotalKill(Player) >= KILLS_13)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(13));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
+		}
+		break;
+		case GRAND_MARSHAL:
+		{
+			if (GetTotalKill(Player) >= KILLS_14)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(14));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
+		}
+		break;
+		case SCOUT:
+		{
+			if (GetTotalKill(Player) >= KILLS_1)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(15));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
+		}
+		break;
+		case GRUNT:
+		{
+			if (GetTotalKill(Player) >= KILLS_2)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(16));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
+		}
+		break;
+		case SERGEANT_H:
+		{
+			if (GetTotalKill(Player) >= KILLS_3)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(17));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
+		}
+		break;
+		case SENIOR_SERGEANT:
+		{
+			if (GetTotalKill(Player) >= KILLS_4)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(18));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
+		}
+		break;
+		case FIRST_SERGEANT:
+		{
+			if (GetTotalKill(Player) >= KILLS_5)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(19));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
+		}
+		break;
+		case STONE_GUARD:
+		{
+			if (GetTotalKill(Player) >= KILLS_6)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(20));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
+		}
+		break;
+		case BLOOD_GUARD:
+		{
+			if (GetTotalKill(Player) >= KILLS_7)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(21));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
+		}
+		break;
+		case LEGIONNAIRE:
+		{
+			if (GetTotalKill(Player) >= KILLS_8)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(22));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
+		}
+		break;
+		case CENTURION:
+		{
+			if (GetTotalKill(Player) >= KILLS_9)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(23));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
+		}
+		break;
+		case CHAMPION:
+		{
+			if (GetTotalKill(Player) >= KILLS_10)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(24));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
+		}
+		break;
+		case LIEUTENANT_GENERAL:
+		{
+			if (GetTotalKill(Player) >= KILLS_11)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(25));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
+		}
+		break;
+		case GENERAL:
+		{
+			if (GetTotalKill(Player) >= KILLS_12)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(26));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
+		}
+		break;
+		case WARLORD:
+		{
+			if (GetTotalKill(Player) >= KILLS_13)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(27));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
+		}
+		break;
+		case HIGH_WARLORD:
+		{
+			if (GetTotalKill(Player) >= KILLS_14)
+				Player->SetTitle(sCharTitlesStore.LookupEntry(28));
+			else
+				Player->GetSession()->SendNotification("You dont have enough kills");
+		}
+		break;
 		Player->PlayerTalkClass->CloseGossip();
-	}
-	return true;
-}
 
+		case 1000:
+			Player->PlayerTalkClass->CloseGossip();
+		}
+		return true;
+	}
+};
 
 void AddSC_npc_PvPTitles()
 {
-	Script *PvPTitles;
-
-	PvPTitles = new Script;
-	PvPTitles->Name = "npc_PvPTitles";
-	PvPTitles->pGossipHello = &OnGossipHello_PvPTitles;
-	PvPTitles->pGossipSelect = &OnGossipSelect_PvPTitles;
-	PvPTitles->RegisterSelf();
+	new npc_PvPTitles();
 }
