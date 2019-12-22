@@ -35,6 +35,11 @@ void AddSC_npc_rentalmount();
 void AddSC_npc_teleport();
 void AddSC_npc_tokens();
 void AddSC_npc_PvPTitles();
+void AddSC_announce_login();
+void AddSC_Boss_Announcer();
+void AddSC_Duel_Reset();
+void AddSC_gamble_npc();
+void AddSC_Npc_Beastmaster();
 
 //examples
 //void AddSC_custom_example();
@@ -430,6 +435,11 @@ void AddScripts()
     LoadNpcTele(result);
     AddSC_npc_tokens();
     AddSC_npc_PvPTitles();
+    AddSC_announce_login();
+    AddSC_Boss_Announcer();
+    AddSC_Duel_Reset();
+	AddSC_gamble_npc();
+	AddSC_Npc_Beastmaster();
 
 //    AddSC_custom_example();
 //    AddSC_custom_gossip_codebox();
