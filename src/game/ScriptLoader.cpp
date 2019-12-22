@@ -23,6 +23,7 @@
 //void AddSC_custom_example();
 //void AddSC_custom_gossip_codebox();
 //void AddSC_test();
+void AddSC_NPC_TransmogDisplayVendor();
 
 //world
 void AddSC_areatrigger_scripts();
@@ -399,6 +400,8 @@ void AddScripts()
     //    AddSC_custom_example();
     //    AddSC_custom_gossip_codebox();
     //    AddSC_test();
+	AddSC_NPC_TransmogDisplayVendor();
+
     AddSC_areatrigger_scripts();
     AddSC_boss_emeriss();
     AddSC_boss_taerar();

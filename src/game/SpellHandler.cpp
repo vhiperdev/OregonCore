@@ -539,7 +539,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
                 if (uint32 entry = TransmogDisplayVendorMgr::GetFakeEntry(item))
                     data << uint32(sObjectMgr.GetItemTemplate(entry)->DisplayInfoID);
                 else
-                    data << uint32(item->GetTemplate()->DisplayInfoID);
+                    data << uint32(item->GetProto()->DisplayInfoID);
             }
             else
                 data << uint32(0);

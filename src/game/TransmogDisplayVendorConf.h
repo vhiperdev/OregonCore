@@ -17,14 +17,10 @@ http://rochet2.github.io/Transmogrification
 #define TRANSMOGRIFICATION_ALREADY_INSTALLED    0
 // Note! If you use both, set this to true (1) and in scriptloader make transmog load first
 
-#include "Define.h"
-#include "ItemTemplate.h"
 #include "SharedDefines.h"
 #include <set>
 #include <vector>
 #include <unordered_map>
-#include <boost/thread/locks.hpp>
-#include <boost/thread/shared_mutex.hpp>
 
 class Creature;
 class Item;
@@ -43,35 +39,28 @@ enum TransmogDisplayVendorSenders
     SENDER_END,
 };
 
-namespace
-{
-    class RWLockable
-    {
-    public:
-        typedef boost::shared_mutex LockType;
-        typedef boost::shared_lock<boost::shared_mutex> ReadGuard;
-        typedef boost::unique_lock<boost::shared_mutex> WriteGuard;
-        LockType& GetLock() { return _lock; }
-    private:
-        LockType _lock;
-    };
-};
 
-class TC_GAME_API SelectionStore : public RWLockable
+
+class SelectionStore
 {
 public:
     struct Selection { uint32 item; uint8 slot; uint32 offset; uint32 quality; };
     typedef std::unordered_map<uint32, Selection> PlayerLowToSelection;
 
+	typedef ACE_Thread_Mutex LockType;
+	typedef Oregon::GeneralLock<LockType > Guard;
+
+	LockType i_lock;
+
     void SetSelection(uint32 playerLow, const Selection& selection)
     {
-        WriteGuard guard(GetLock());
+		Guard guard(i_lock);
         hashmap[playerLow] = selection;
     }
 
     bool GetSelection(uint32 playerLow, Selection& returnVal)
     {
-        ReadGuard guard(GetLock());
+		Guard guard(i_lock);
 
         PlayerLowToSelection::iterator it = hashmap.find(playerLow);
         if (it == hashmap.end())
@@ -83,7 +72,7 @@ public:
 
     void RemoveSelection(uint32 playerLow)
     {
-        WriteGuard guard(GetLock());
+		Guard guard(i_lock);
         hashmap.erase(playerLow);
     }
 
@@ -91,7 +80,7 @@ private:
     PlayerLowToSelection hashmap;
 };
 
-class TC_GAME_API TransmogDisplayVendorMgr
+class TransmogDisplayVendorMgr
 {
 public:
     // Selection store
