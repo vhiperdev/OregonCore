@@ -35,6 +35,7 @@
 #include "MapReference.h"
 #include "Utilities/Util.h"                                           // for Tokens typedef
 #include "ReputationMgr.h"
+#include "TransmogDisplayVendorConf.h"
 
 #include<string>
 #include<vector>
@@ -109,6 +110,19 @@ struct SpellModifier
     uint32 effectId;
     Spell const* lastAffected;
 };
+
+typedef UNORDERED_MAP<uint64, uint32> TransmogMapType;
+//typedef UNORDERED_MAP<ObjectGuid, uint32> TransmogMapType;
+
+#ifdef PRESETS
+typedef std::map<uint8, uint32> PresetslotMapType;
+struct PresetData
+{
+    std::string name;
+    PresetslotMapType slotMap; // slotMap[slotId] = entry
+};
+typedef std::map<uint8, PresetData> PresetMapType;
+#endif
 
 typedef UNORDERED_MAP<uint16, PlayerSpell> PlayerSpellMap;
 typedef std::list<SpellModifier*> SpellModList;
@@ -984,6 +998,11 @@ class Player : public Unit, public GridObject<Player>
     public:
         explicit Player(WorldSession* session);
         ~Player() override;
+
+         TransmogMapType transmogMap; // transmogMap[iGUID] = entry
+#ifdef PRESETS
+		PresetMapType presetMap; // presetMap[presetId] = presetData
+#endif
 
         void CleanupsBeforeDelete() override;
 

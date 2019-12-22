@@ -1109,6 +1109,9 @@ void World::LoadConfigSettings(bool reload)
     if (reload)
         sEluna->OnConfigLoad(reload);
 
+    // call ScriptMgr if we're reloading the configuration
+  	if (reload)
+  		sScriptMgr.OnConfigLoad(reload);
 }
 
 void World::LoadSQLUpdates()
