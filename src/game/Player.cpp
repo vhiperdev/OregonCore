@@ -28,6 +28,7 @@
 #include "UpdateMask.h"
 #include "Player.h"
 #include "SkillDiscovery.h"
+#include "TransmogDisplayVendorConf.h"
 #include "QuestDef.h"
 #include "GossipDef.h"
 #include "UpdateData.h"
@@ -10700,7 +10701,11 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
         SetUInt64Value(PLAYER_VISIBLE_ITEM_1_CREATOR + (slot * MAX_VISIBLE_ITEM_OFFSET), pItem->GetUInt64Value(ITEM_FIELD_CREATOR));
 
         int VisibleBase = PLAYER_VISIBLE_ITEM_1_0 + (slot * MAX_VISIBLE_ITEM_OFFSET);
-        SetUInt32Value(VisibleBase + 0, pItem->GetEntry());
+        
+		if (uint32 entry = TransmogDisplayVendorMgr::GetFakeEntry(pItem))
+			SetUInt32Value(VisibleBase + 0, entry);
+		else
+			SetUInt32Value(VisibleBase + 0, pItem->GetEntry());
 
         for (int i = 0; i < MAX_INSPECTED_ENCHANTMENT_SLOT; ++i)
             SetUInt32Value(VisibleBase + 1 + i, pItem->GetEnchantmentId(EnchantmentSlot(i)));
@@ -10824,6 +10829,7 @@ void Player::MoveItemFromInventory(uint8 bag, uint8 slot, bool update)
 {
     if (Item* it = GetItemByPos(bag, slot))
     {
+		TransmogDisplayVendorMgr::DeleteFakeEntry(this, it);
         ItemRemovedQuestCheck(it->GetEntry(), it->GetCount());
         RemoveItem(bag, slot, update);
         it->RemoveFromUpdateQueueOf(this);
@@ -18220,6 +18226,12 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
         SendBuyError(BUY_ERR_DISTANCE_TOO_FAR, NULL, item, 0);
         return false;
     }
+
+	if (pCreature->GetScriptName() == "NPC_TransmogDisplayVendor")
+	{
+		TransmogDisplayVendorMgr::HandleTransmogrify(this, pCreature, slot, item);
+		return false;
+	}
 
     VendorItemData const* vItems = pCreature->GetVendorItems();
     if (!vItems || vItems->Empty())

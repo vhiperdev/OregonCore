@@ -5622,14 +5622,29 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
             Item* mainItem = NULL;
             Item* offItem = NULL;
             Item* rangedItem = NULL;
-            if (mainItem = pCaster->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
-                unitTarget->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + 0, mainItem->GetProto()->DisplayInfoID);
+            if (mainItem = pCaster->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))              
+			{
+                        if (uint32 entry = TransmogDisplayVendorMgr::GetFakeEntry(mainItem))
+							unitTarget->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + 0, entry);
+                        else
+							unitTarget->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + 0, mainItem->GetProto()->DisplayInfoID);
+            }
 
             if (offItem = pCaster->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
-                unitTarget->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + 1, offItem->GetProto()->DisplayInfoID);
+			{
+				if (uint32 entry = TransmogDisplayVendorMgr::GetFakeEntry(mainItem))
+					unitTarget->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + 0, entry);
+				else
+					unitTarget->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + 1, offItem->GetProto()->DisplayInfoID);
+			}
 
             if (rangedItem = pCaster->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED))
-                unitTarget->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + 2, rangedItem->GetProto()->DisplayInfoID);
+			{
+				if (uint32 entry = TransmogDisplayVendorMgr::GetFakeEntry(mainItem))
+					unitTarget->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + 0, entry);
+				else
+					unitTarget->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + 2, rangedItem->GetProto()->DisplayInfoID);
+			}
 
             break;
         }

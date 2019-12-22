@@ -110,6 +110,19 @@ struct SpellModifier
     Spell const* lastAffected;
 };
 
+
+typedef std::unordered_map<ObjectGuid, uint32> TransmogMapType;
+
+#ifdef PRESETS
+typedef std::map<uint8, uint32> PresetslotMapType;
+struct PresetData
+{
+    std::string name;
+    PresetslotMapType slotMap; // slotMap[slotId] = entry
+};
+typedef std::map<uint8, PresetData> PresetMapType;
+#endif
+
 typedef UNORDERED_MAP<uint16, PlayerSpell> PlayerSpellMap;
 typedef std::list<SpellModifier*> SpellModList;
 
