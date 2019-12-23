@@ -13,7 +13,7 @@ http://rochet2.github.io/Transmogrification
 #include "TransmogDisplayVendorConf.h"
 #include "Bag.h"
 #include "Common.h"
-#include "Config.h"
+#include "config.h"
 #include "Creature.h"
 #include "DatabaseEnv.h"
 #include "DBCStructure.h"
