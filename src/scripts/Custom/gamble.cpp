@@ -57,10 +57,10 @@ public:
 	bool OnGossipHello(Player* player, Creature* creature) override
 	{
 
-		player->ADD_GOSSIP_ITEM(3, "|cffFF0000I want to play with |CFFFFCC99Armor Part!", GOSSIP_SENDER_MAIN, ARMOR_PART, "Insert amount of Armor Part", 0, true);
-		player->ADD_GOSSIP_ITEM(3, "|cffFF0000I want to play with |CFFFFCC99Weapon Part!", GOSSIP_SENDER_MAIN, WEAPON_PART, "Insert amount of Weapon Part", 0, true);
-		player->ADD_GOSSIP_ITEM(3, "|cffFF0000I want to play with |cff6699FFIllusion Dust!", GOSSIP_SENDER_MAIN, SOULS_COPON, "Insert amount of Illusion Dust", 0, true);
-		player->ADD_GOSSIP_ITEM(3, "|cffFF0000I want to play with |cffFF0000Phoenix Feather!", GOSSIP_SENDER_MAIN, UNHOLI_COPON, "Insert amount of Phoenix Feather", 0, true);
+		player->ADD_GOSSIP_ITEM_EXTENDED(3, "|cffFF0000I want to play with |CFFFFCC99Armor Part!", GOSSIP_SENDER_MAIN, ARMOR_PART, "Insert amount of Armor Part", 0, true);
+		player->ADD_GOSSIP_ITEM_EXTENDED(3, "|cffFF0000I want to play with |CFFFFCC99Weapon Part!", GOSSIP_SENDER_MAIN, WEAPON_PART, "Insert amount of Weapon Part", 0, true);
+		player->ADD_GOSSIP_ITEM_EXTENDED(3, "|cffFF0000I want to play with |cff6699FFIllusion Dust!", GOSSIP_SENDER_MAIN, SOULS_COPON, "Insert amount of Illusion Dust", 0, true);
+		player->ADD_GOSSIP_ITEM_EXTENDED(3, "|cffFF0000I want to play with |cffFF0000Phoenix Feather!", GOSSIP_SENDER_MAIN, UNHOLI_COPON, "Insert amount of Phoenix Feather", 0, true);
 		player->ADD_GOSSIP_ITEM(3, "The game works as following. you add an amount of the chosen currency and you can multiplay it!", GOSSIP_SENDER_MAIN, 0);
 
 		player->PlayerTalkClass->SendGossipMenu(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
