@@ -41,6 +41,7 @@ void AddSC_Duel_Reset();
 void AddSC_gamble_npc();
 void AddSC_Npc_Beastmaster();
 void AddSC_NPC_TransmogDisplayVendor();
+void AddSC_npc_gurubashi_theme();
 
 //examples
 //void AddSC_custom_example();
@@ -439,9 +440,10 @@ void AddScripts()
     AddSC_announce_login();
     AddSC_Boss_Announcer();
     AddSC_Duel_Reset();
-	  AddSC_gamble_npc();
-	  AddSC_Npc_Beastmaster();
+    AddSC_gamble_npc();
+    AddSC_Npc_Beastmaster();
     AddSC_NPC_TransmogDisplayVendor();
+    AddSC_npc_gurubashi_theme();
 
 //    AddSC_custom_example();
 //    AddSC_custom_gossip_codebox();
