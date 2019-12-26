@@ -2,7 +2,7 @@
 http://www.ac-web.org/forums/showthread.php?150939-Updated-Trinitycore-Gurubashi-Theme-Generator
 */
 
-#include "ScriptPch.h"
+#include "ScriptPCH.h"
 #include <cstring>
 #include <stdio.h>
 #include <time.h>
