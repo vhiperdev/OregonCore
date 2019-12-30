@@ -42,6 +42,7 @@ void AddSC_gamble_npc();
 void AddSC_Npc_Beastmaster();
 void AddSC_NPC_TransmogDisplayVendor();
 void AddSC_npc_gurubashi_theme();
+void AddSC_StockExchange();
 
 //examples
 //void AddSC_custom_example();
@@ -444,6 +445,7 @@ void AddScripts()
     AddSC_Npc_Beastmaster();
     AddSC_NPC_TransmogDisplayVendor();
     AddSC_npc_gurubashi_theme();
+    AddSC_StockExchange();
 
 //    AddSC_custom_example();
 //    AddSC_custom_gossip_codebox();
