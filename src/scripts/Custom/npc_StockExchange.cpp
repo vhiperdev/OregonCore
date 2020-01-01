@@ -1,5 +1,5 @@
 #include "ScriptPCH.h"
-#include "Config.h"
+#include "Config/Config.h"
 #include "ScriptedCreature.h"
 #include "Language.h"
 #include "time.h"
