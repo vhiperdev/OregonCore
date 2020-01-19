@@ -2591,6 +2591,8 @@ void World::ResetDailyQuests()
 
     // change available dailies
     sPoolMgr.ChangeDailyQuests();
+
+    sAnticheatMgr->ResetDailyReportStates();
 }
 
 void World::SetPlayerLimit(int32 limit, bool /*needUpdate*/)
