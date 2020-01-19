@@ -71,6 +71,7 @@
 #include "LuaEngine.h"
 
 #include <ace/Dirent.h>
+#include <ace/OS_NS_sys_stat.h>
 
 INSTANTIATE_SINGLETON_1(World);
 
@@ -1294,7 +1295,9 @@ void World::LoadModSQLUpdates()
             {
                 sLog.outFatal("directory error %s: %s", path.c_str(), strerror(errno));
                 continue;
-            }
+			}
+
+
             switch (stat_buf.st_mode & S_IFMT)
             {
             case S_IFDIR://is directory?
