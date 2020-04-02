@@ -19,7 +19,9 @@
 #define OREGONCORE_CHAT_H
 
 #include "SharedDefines.h"
+#include "Player.h"
 
+#include <vector>
 
 class ChatHandler;
 class WorldSession;
@@ -30,18 +32,19 @@ struct GameTele;
 
 class ChatCommand
 {
-    public:
-        const char*        Name;
-        uint32             SecurityLevel;                   // function pointer required correct align (use uint32)
-        bool               AllowConsole;
-        bool (ChatHandler::*Handler)(const char* args);
-        std::string        Help;
-        ChatCommand*       ChildCommands;
+public:
+    const char *       Name;
+    uint32             SecurityLevel;                   // function pointer required correct align (use uint32)
+    bool               AllowConsole;
+    bool(*Handler)(ChatHandler*, const char* args);
+    std::string        Help;
+    ChatCommand *      ChildCommands;
 };
 
 class ChatHandler
 {
     public:
+        WorldSession * GetSession() { return m_session; }
         explicit ChatHandler(WorldSession* session) : m_session(session), sentErrorMessage(false) { }
         explicit ChatHandler(Player* player) : m_session(player->GetSession()) { }
         ~ChatHandler() {}
@@ -88,6 +91,7 @@ class ChatHandler
         virtual char const* GetName() const;
     protected:
         explicit ChatHandler() : m_session(NULL), sentErrorMessage(false) { }      // for CLI subclass
+        static bool SetDataForCommandInTable(ChatCommand *table, const char* text, uint32 security, std::string const& help, std::string const& fullcommand);
 
         bool hasStringAbbr(const char* name, const char* part);
 
@@ -98,7 +102,8 @@ class ChatHandler
         void SendGlobalSysMessage(const char* str);
         void SendGlobalGMSysMessage(const char* str);
 
-        bool ExecuteCommandInTable(ChatCommand* table, const char* text, const std::string& fullcommand);
+        bool ExecuteCommandInTables(std::vector<ChatCommand*>& tables, const char* text, const std::string& fullcmd);
+        bool ExecuteCommandInTable(ChatCommand *table, const char* text, const std::string& fullcmd);
         bool ShowHelpForCommand(ChatCommand* table, const char* cmd);
         bool ShowHelpForSubCommands(ChatCommand* table, char const* cmd, char const* subcmd);
 

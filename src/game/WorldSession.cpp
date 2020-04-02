@@ -332,7 +332,7 @@ void WorldSession::LogoutPlayer(bool Save)
     if (_player)
     {
         //Hook for OnLogout Event
-        sScriptMgr.OnLogout(_player);
+        sScriptMgr.OnPlayerLogout(_player);
 
         if (uint64 lguid = GetPlayer()->GetLootGUID())
             DoLootRelease(lguid);
@@ -455,6 +455,9 @@ void WorldSession::LogoutPlayer(bool Save)
 
         ///- used by eluna
         sEluna->OnLogout(_player);
+
+		//! Call script hook before deletion
+		sScriptMgr.OnPlayerLogout(_player);
 
         // Remove the player from the world
         // the player may not be in the world when logging out
