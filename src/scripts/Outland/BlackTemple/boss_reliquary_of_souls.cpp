@@ -181,7 +181,7 @@ public:
             if (!who)
                 return;
 
-            if (me->isInCombat())
+            if (me->IsInCombat())
                 return;
 
             if (who->GetTypeId() != TYPEID_PLAYER)
