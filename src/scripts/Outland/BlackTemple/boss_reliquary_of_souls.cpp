@@ -176,22 +176,22 @@ public:
             me->RemoveAurasDueToSpell(SPELL_SUBMERGE);
         }
 
-		void MoveInLineOfSight(Unit* who)
-		{
-			if (!who)
-				return;
+        void MoveInLineOfSight(Unit* who)
+        {
+            if (!who)
+                return;
 
-			if (me->IsInCombat())
-				return;
+            if (me->isInCombat())
+                return;
 
-			if (who->GetTypeId() != TYPEID_PLAYER)
-				return;
+            if (who->GetTypeId() != TYPEID_PLAYER)
+                return;
 
-			if (me->GetDistance(who) > 50.0f)
-				return;
+            if (me->GetDistance(who) > 50.0f)
+                return;
 
-			AttackStartNoMove(who);
-		}
+            AttackStartNoMove(who);
+        }
 
         void EnterCombat(Unit* who)
         {
